@@ -14,6 +14,10 @@
 		DE461A1A2BF913C800695239 /* MVVMGameHW.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE461A182BF913C800695239 /* MVVMGameHW.xcdatamodeld */; };
 		DE461A1C2BF913CA00695239 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE461A1B2BF913CA00695239 /* Assets.xcassets */; };
 		DE461A1F2BF913CA00695239 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = DE461A1E2BF913CA00695239 /* Base */; };
+		DE5D999B2BF951BB008540C2 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE5D999A2BF951BB008540C2 /* Service.swift */; };
+		DEB60E322BFA22C40048779A /* NetworkErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E312BFA22C40048779A /* NetworkErrors.swift */; };
+		DEB60E342BFA24140048779A /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E332BFA24140048779A /* Game.swift */; };
+		DEB60E362BFA2B650048779A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E352BFA2B650048779A /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +30,10 @@
 		DE461A1B2BF913CA00695239 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE461A1E2BF913CA00695239 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DE461A202BF913CA00695239 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DE5D999A2BF951BB008540C2 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		DEB60E312BFA22C40048779A /* NetworkErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrors.swift; sourceTree = "<group>"; };
+		DEB60E332BFA24140048779A /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		DEB60E352BFA2B650048779A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,9 +66,13 @@
 		DE461A0E2BF913C800695239 /* MVVMGameHW */ = {
 			isa = PBXGroup;
 			children = (
-				DE461A0F2BF913C800695239 /* AppDelegate.swift */,
-				DE461A112BF913C800695239 /* SceneDelegate.swift */,
-				DE461A132BF913C800695239 /* ViewController.swift */,
+				DE461A2C2BF94C6300695239 /* Network */,
+				DE461A2B2BF94C4600695239 /* Theme */,
+				DE461A2A2BF94C4200695239 /* Core */,
+				DE461A292BF94C3D00695239 /* Controller */,
+				DE461A282BF94C2500695239 /* ViewModel */,
+				DE461A272BF94C2100695239 /* View */,
+				DE461A262BF94C1B00695239 /* Model */,
 				DE461A152BF913C800695239 /* Main.storyboard */,
 				DE461A1B2BF913CA00695239 /* Assets.xcassets */,
 				DE461A1D2BF913CA00695239 /* LaunchScreen.storyboard */,
@@ -68,6 +80,62 @@
 				DE461A182BF913C800695239 /* MVVMGameHW.xcdatamodeld */,
 			);
 			path = MVVMGameHW;
+			sourceTree = "<group>";
+		};
+		DE461A262BF94C1B00695239 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DEB60E332BFA24140048779A /* Game.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DE461A272BF94C2100695239 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		DE461A282BF94C2500695239 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		DE461A292BF94C3D00695239 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				DE461A132BF913C800695239 /* ViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		DE461A2A2BF94C4200695239 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				DE461A112BF913C800695239 /* SceneDelegate.swift */,
+				DE461A0F2BF913C800695239 /* AppDelegate.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		DE461A2B2BF94C4600695239 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		DE461A2C2BF94C6300695239 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				DE5D999A2BF951BB008540C2 /* Service.swift */,
+				DEB60E312BFA22C40048779A /* NetworkErrors.swift */,
+				DEB60E352BFA2B650048779A /* Constants.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -143,8 +211,12 @@
 			files = (
 				DE461A142BF913C800695239 /* ViewController.swift in Sources */,
 				DE461A102BF913C800695239 /* AppDelegate.swift in Sources */,
+				DEB60E342BFA24140048779A /* Game.swift in Sources */,
+				DE5D999B2BF951BB008540C2 /* Service.swift in Sources */,
 				DE461A1A2BF913C800695239 /* MVVMGameHW.xcdatamodeld in Sources */,
 				DE461A122BF913C800695239 /* SceneDelegate.swift in Sources */,
+				DEB60E322BFA22C40048779A /* NetworkErrors.swift in Sources */,
+				DEB60E362BFA2B650048779A /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct APIConstants {
+    static let apiKey = "fafe27995f504d64b90c586c1c392d71"
+    static let baseURL = "https://api.rawg.io/api/games"
+}
+
+
