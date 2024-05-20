@@ -75,6 +75,7 @@ extension ViewController: UIScrollViewDelegate{
 }
 
 extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate{
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.numberOfItems
     }
@@ -104,12 +105,7 @@ extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-       /* switch collectionView{
-            case gameCollectionView:
-                return CGSize(width: collectionView.frame.size.width, height: 80)
-            default:
-                return CGSize.zero
-        }*/
+
         if shouldShowFooter {
             return CGSize(width: collectionView.frame.width, height: 80)
         } else {
