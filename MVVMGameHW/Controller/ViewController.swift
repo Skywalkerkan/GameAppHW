@@ -24,11 +24,14 @@ class ViewController: UIViewController {
             viewModel.delegate = self
         }
     }
+    var isLoading = false
+    var shouldShowFooter = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.load()
+        viewModel.load(nextPage: nil)
         setupCollectionView()
+        setupFooter()
         
     }
     
@@ -42,6 +45,10 @@ class ViewController: UIViewController {
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
+    
+    private func setupFooter(){
+        gameCollectionView.register(FooterReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterReusableView.identifier)
+    }
 }
 
 extension ViewController: UIScrollViewDelegate{
@@ -53,6 +60,15 @@ extension ViewController: UIScrollViewDelegate{
 
                 if offsetY - 100 > contentHeight - frameHeight {
                     print("En son satıra ulaşıldı")
+                    if !shouldShowFooter && !isLoading {
+                            shouldShowFooter = true
+                            isLoading = true
+                            self.gameCollectionView.performBatchUpdates({
+                            self.gameCollectionView.collectionViewLayout.invalidateLayout()
+                            })
+                        viewModel.load(nextPage: viewModel.nextPage)
+                        print("Reached the bottom")
+                    }
                 }
             }
         }
@@ -60,7 +76,6 @@ extension ViewController: UIScrollViewDelegate{
 
 extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(viewModel.numberOfItems)
         return viewModel.numberOfItems
     }
         
@@ -76,11 +91,39 @@ extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDa
         return CGSize(width: view.frame.size.width - 16, height: view.frame.size.width - 16)
     }
     
+    //Footer
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
+        if collectionView == gameCollectionView && kind == UICollectionView.elementKindSectionFooter {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: FooterReusableView.identifier, for: indexPath) as! FooterReusableView
+            return header
+        } else {
+            return UICollectionReusableView()
+        }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+       /* switch collectionView{
+            case gameCollectionView:
+                return CGSize(width: collectionView.frame.size.width, height: 80)
+            default:
+                return CGSize.zero
+        }*/
+        if shouldShowFooter {
+            return CGSize(width: collectionView.frame.width, height: 80)
+        } else {
+            return CGSize.zero
+        }
+    }
+    
 }
 
 extension ViewController: HomeViewModelDelegate{
     func reloadData() {
         gameCollectionView.reloadData()
+        isLoading = false
+        shouldShowFooter = false
     }
     
 }

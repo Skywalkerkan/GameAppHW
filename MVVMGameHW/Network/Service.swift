@@ -8,7 +8,7 @@
 import Foundation
 
 protocol GameServiceProtocol{
-    func fetchListOfGames(completion: @escaping (Swift.Result<GameResult, NetworkError>) -> Void)
+    func fetchListOfGames(nextPage: String?, completion: @escaping (Swift.Result<GameResult, NetworkError>) -> Void)
 }
 
 class GameService: GameServiceProtocol{
@@ -16,8 +16,14 @@ class GameService: GameServiceProtocol{
     
     static let shared = GameService()
     
-    func fetchListOfGames(completion: @escaping (Swift.Result<GameResult, NetworkError>) -> Void) {
-        let urlString = APIConstants.baseURL + "?key=" + APIConstants.apiKey
+    func fetchListOfGames(nextPage: String?, completion: @escaping (Swift.Result<GameResult, NetworkError>) -> Void) {
+        
+        var urlString = ""
+        if let nextPage = nextPage{
+            urlString = nextPage
+        }else{
+            urlString = APIConstants.baseURL + "?key=" + APIConstants.apiKey
+        }
                 
         guard let url = URL(string: urlString) else {
             completion(.failure(.invalidURL(urlString)))

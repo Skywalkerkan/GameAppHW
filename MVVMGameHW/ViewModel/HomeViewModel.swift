@@ -16,27 +16,32 @@ protocol HomeViewModelDelegate: AnyObject {
 protocol HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate? { get set }
     var numberOfItems: Int { get }
-    func load()
+    func load(nextPage: String?)
     func game(indexPath: IndexPath) -> Result?
+    var nextPage: String? { get set}
 }
 
 final class HomeViewModel{
     
     let service: GameServiceProtocol
     var games = [Result]()
+    var nextPage: String?
     weak var delegate: HomeViewModelDelegate?
     
     init(service: GameServiceProtocol) {
         self.service = service
     }
     
-    fileprivate func fetchGames(){
-        service.fetchListOfGames { [weak self] result in
+    fileprivate func fetchGames(nextPage: String?){
+
+        service.fetchListOfGames(nextPage: nextPage ?? nil) { [weak self] result in
             print("ok")
             switch result{
             case .success(let gameResult):
                 DispatchQueue.main.async {
-                    self?.games = gameResult.results ?? []
+                    print("Yükleniyor")
+                    self?.games += gameResult.results ?? []
+                    self?.nextPage = gameResult.next
                     self?.delegate?.reloadData()
                 }
             case .failure(let error):
@@ -47,15 +52,19 @@ final class HomeViewModel{
 }
 
 extension HomeViewModel: HomeViewModelProtocol{
- 
-    
-    func load() {
-        fetchGames()
+     
+    func load(nextPage: String?) {
+        fetchGames(nextPage: nextPage)
     }
     
     func game(indexPath: IndexPath) -> Result? {
         games[indexPath.row]
     }
+    
+    var nextPageUrlString: String?{
+        return nextPage
+    }
+        
     var numberOfItems: Int {
         print("oyun sayısı \(games.count)")
        return games.count
