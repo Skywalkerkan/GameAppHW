@@ -28,12 +28,15 @@ class GameCell: UICollectionViewCell {
         gameImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         gameImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         gameImageView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        gameImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0).isActive = true
+        gameImageView.widthAnchor.constraint(equalToConstant: 160).isActive = true
     }
     
     func configure(gameResult: Result){
         if let imageURL = URL(string: gameResult.backgroundImage ?? ""){
-            gameImageView.sd_setImage(with: imageURL)
+            DispatchQueue.main.async {
+                self.gameImageView.sd_setImage(with: imageURL, placeholderImage: nil, options: [.continueInBackground, .lowPriority])
+
+            }
         }
     }
     

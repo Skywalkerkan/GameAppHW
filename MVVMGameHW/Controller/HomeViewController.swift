@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class HomeViewController: UIViewController {
     
     
     let gameCollectionView: UICollectionView = {
@@ -24,11 +24,13 @@ class ViewController: UIViewController {
             viewModel.delegate = self
         }
     }
-    var isLoading = false
+    var isLoading = true
     var shouldShowFooter = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
+
         viewModel.load(nextPage: nil)
         setupCollectionView()
         setupFooter()
@@ -51,7 +53,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: UIScrollViewDelegate{
+extension HomeViewController: UIScrollViewDelegate{
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
             if scrollView == gameCollectionView {
                 let offsetY = scrollView.contentOffset.y
@@ -59,22 +61,21 @@ extension ViewController: UIScrollViewDelegate{
                 let frameHeight = scrollView.frame.size.height
 
                 if offsetY - 100 > contentHeight - frameHeight {
-                    print("En son satıra ulaşıldı")
                     if !shouldShowFooter && !isLoading {
                             shouldShowFooter = true
                             isLoading = true
                             self.gameCollectionView.performBatchUpdates({
                             self.gameCollectionView.collectionViewLayout.invalidateLayout()
                             })
+                        print("Veri Çekiliyor")
                         viewModel.load(nextPage: viewModel.nextPage)
-                        print("Reached the bottom")
                     }
                 }
             }
         }
 }
 
-extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate{
+extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.numberOfItems
@@ -88,8 +89,16 @@ extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDa
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let game = viewModel.game(indexPath: indexPath){
+            print(game.name, game.id)
+            let VC = DetailViewController()
+            navigationController?.pushViewController(VC, animated: true)
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.size.width - 16, height: view.frame.size.width - 16)
+        return CGSize(width: view.frame.size.width - 16, height: 100)
     }
     
     //Footer
@@ -112,10 +121,10 @@ extension ViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDa
             return CGSize.zero
         }
     }
-    
+
 }
 
-extension ViewController: HomeViewModelDelegate{
+extension HomeViewController: HomeViewModelDelegate{
     func reloadData() {
         gameCollectionView.reloadData()
         isLoading = false

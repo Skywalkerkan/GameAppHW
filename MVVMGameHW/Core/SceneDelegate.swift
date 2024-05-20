@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,14 +17,48 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+      /*  guard let windowScene = (scene as? UIWindowScene) else { return }
         self.window = UIWindow(windowScene: windowScene)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let rootVC = storyboard.instantiateViewController(withIdentifier: "ViewController") as? ViewController else { return }
+        guard let rootVC = storyboard.instantiateViewController(withIdentifier: "HomeViewController") as? HomeViewController else { return }
         let viewModel = HomeViewModel(service: GameService())
         rootVC.viewModel = viewModel
         self.window?.makeKeyAndVisible()
-        self.window?.rootViewController = rootVC
+        self.window?.rootViewController = rootVC*/
+        
+        let tabBarController = UITabBarController()
+        let firstVC = HomeViewController() // FirstViewController nesnesini doğrudan oluşturun
+        let gameViewModel = HomeViewModel(service: GameService())
+        firstVC.viewModel = gameViewModel
+        let secondVC = DetailViewController()
+        
+        let firstNavigationController = UINavigationController(rootViewController: firstVC)
+        let secondNavigationController = UINavigationController(rootViewController: secondVC)
+        
+        // Tab Bar item'ları ayarla
+        firstNavigationController.tabBarItem = UITabBarItem(title: "First", image: UIImage(named: "first"), tag: 0)
+        secondNavigationController.tabBarItem = UITabBarItem(title: "Second", image: UIImage(named: "second"), tag: 1)
+        
+        // UINavigationController'ları tabBarController'a ekle
+        tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
+        
+        // Ana pencereye tabBarController'ı ata
+        self.window?.rootViewController = tabBarController
+        self.window?.makeKeyAndVisible()
+        
+        
+        // Override point for customization after application launch.
+        let cache = SDImageCache.shared
+
+        // Bellek kapasitesini ayarlayın (byte cinsinden)
+        cache.config.maxMemoryCost = 50 * 1024 * 1024 // 50 MB
+
+        // Disk kapasitesini ayarlayın (byte cinsinden)
+        cache.config.maxDiskSize = 200 * 1024 * 1024 // 200 MB
+
+        // Disk'te saklama süresini ayarlayın (gün cinsinden)
+        cache.config.maxDiskAge = 7 * 24 * 60 * 60 // 1 hafta
+        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
