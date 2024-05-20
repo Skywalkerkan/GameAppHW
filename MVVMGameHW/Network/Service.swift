@@ -13,7 +13,6 @@ protocol GameServiceProtocol{
 
 class GameService: GameServiceProtocol{
    
-    private init() {}
     
     static let shared = GameService()
     

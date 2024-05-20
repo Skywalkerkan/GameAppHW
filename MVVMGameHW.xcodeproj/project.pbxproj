@@ -18,6 +18,10 @@
 		DEB60E322BFA22C40048779A /* NetworkErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E312BFA22C40048779A /* NetworkErrors.swift */; };
 		DEB60E342BFA24140048779A /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E332BFA24140048779A /* Game.swift */; };
 		DEB60E362BFA2B650048779A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E352BFA2B650048779A /* Constants.swift */; };
+		DEB60E382BFA34190048779A /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E372BFA34190048779A /* HomeViewModel.swift */; };
+		DEB60E3A2BFA38710048779A /* GameCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E392BFA38710048779A /* GameCell.swift */; };
+		DEB60E3D2BFA38BF0048779A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = DEB60E3C2BFA38BF0048779A /* SDWebImage */; };
+		DEB60E3F2BFA38BF0048779A /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DEB60E3E2BFA38BF0048779A /* SDWebImageMapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +38,8 @@
 		DEB60E312BFA22C40048779A /* NetworkErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrors.swift; sourceTree = "<group>"; };
 		DEB60E332BFA24140048779A /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		DEB60E352BFA2B650048779A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		DEB60E372BFA34190048779A /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		DEB60E392BFA38710048779A /* GameCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEB60E3F2BFA38BF0048779A /* SDWebImageMapKit in Frameworks */,
+				DEB60E3D2BFA38BF0048779A /* SDWebImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +101,7 @@
 		DE461A272BF94C2100695239 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				DEB60E392BFA38710048779A /* GameCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -100,6 +109,7 @@
 		DE461A282BF94C2500695239 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				DEB60E372BFA34190048779A /* HomeViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -154,6 +164,10 @@
 			dependencies = (
 			);
 			name = MVVMGameHW;
+			packageProductDependencies = (
+				DEB60E3C2BFA38BF0048779A /* SDWebImage */,
+				DEB60E3E2BFA38BF0048779A /* SDWebImageMapKit */,
+			);
 			productName = MVVMGameHW;
 			productReference = DE461A0C2BF913C800695239 /* MVVMGameHW.app */;
 			productType = "com.apple.product-type.application";
@@ -182,6 +196,9 @@
 				Base,
 			);
 			mainGroup = DE461A032BF913C800695239;
+			packageReferences = (
+				DEB60E3B2BFA38BF0048779A /* XCRemoteSwiftPackageReference "SDWebImage" */,
+			);
 			productRefGroup = DE461A0D2BF913C800695239 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -210,9 +227,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE461A142BF913C800695239 /* ViewController.swift in Sources */,
+				DEB60E382BFA34190048779A /* HomeViewModel.swift in Sources */,
 				DE461A102BF913C800695239 /* AppDelegate.swift in Sources */,
 				DEB60E342BFA24140048779A /* Game.swift in Sources */,
 				DE5D999B2BF951BB008540C2 /* Service.swift in Sources */,
+				DEB60E3A2BFA38710048779A /* GameCell.swift in Sources */,
 				DE461A1A2BF913C800695239 /* MVVMGameHW.xcdatamodeld in Sources */,
 				DE461A122BF913C800695239 /* SceneDelegate.swift in Sources */,
 				DEB60E322BFA22C40048779A /* NetworkErrors.swift in Sources */,
@@ -439,6 +458,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DEB60E3B2BFA38BF0048779A /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.19.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DEB60E3C2BFA38BF0048779A /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEB60E3B2BFA38BF0048779A /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		DEB60E3E2BFA38BF0048779A /* SDWebImageMapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEB60E3B2BFA38BF0048779A /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImageMapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		DE461A182BF913C800695239 /* MVVMGameHW.xcdatamodeld */ = {
