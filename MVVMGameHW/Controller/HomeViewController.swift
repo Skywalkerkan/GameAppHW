@@ -14,7 +14,7 @@ class HomeViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         let cw = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cw.backgroundColor = .red
+        cw.backgroundColor = Colors.backgroundColor
         cw.translatesAutoresizingMaskIntoConstraints = false
         return cw
     }()
@@ -29,8 +29,7 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.isHidden = true
-
+      //  navigationController?.navigationBar.isHidden = true
         viewModel.load(nextPage: nil)
         setupCollectionView()
         setupFooter()
@@ -42,7 +41,7 @@ class HomeViewController: UIViewController {
         gameCollectionView.delegate = self
         gameCollectionView.dataSource = self
         gameCollectionView.register(GameCell.self, forCellWithReuseIdentifier: GameCell.identifier)
-        gameCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        gameCollectionView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         gameCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -67,7 +66,6 @@ extension HomeViewController: UIScrollViewDelegate{
                             self.gameCollectionView.performBatchUpdates({
                             self.gameCollectionView.collectionViewLayout.invalidateLayout()
                             })
-                        print("Veri Çekiliyor")
                         viewModel.load(nextPage: viewModel.nextPage)
                     }
                 }
@@ -91,14 +89,19 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let game = viewModel.game(indexPath: indexPath){
-            print(game.name, game.id)
             let VC = DetailViewController()
+            
+            if let id = game.id{
+                VC.id = id
+                let detailViewModel = DetailViewModel(service: GameService())
+                VC.viewModel = detailViewModel
+            }
             navigationController?.pushViewController(VC, animated: true)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.size.width - 16, height: 100)
+        return CGSize(width: view.frame.size.width - 16, height: 80)
     }
     
     //Footer
@@ -121,10 +124,23 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
             return CGSize.zero
         }
     }
+    
+   
 
 }
 
-extension HomeViewController: HomeViewModelDelegate{
+extension HomeViewController: HomeViewModelDelegate, LoadingIndicator{
+    func showLoadingView() {
+        if viewModel.numberOfItems == 0{
+            //İlk başladığında Yap
+            showLoading()
+        }
+    }
+    
+    func hideLoadingView() {
+        hideLoading()
+    }
+    
     func reloadData() {
         gameCollectionView.reloadData()
         isLoading = false

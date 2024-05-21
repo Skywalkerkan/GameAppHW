@@ -18,7 +18,6 @@ struct GameResult: Decodable {
     let seoTitle, seoDescription, seoKeywords, seoH1: String?
     let noindex, nofollow: Bool?
     let description: String?
-    let filters: Filters?
     let nofollowCollections: [String]?
 
     enum CodingKeys: String, CodingKey {
@@ -27,25 +26,12 @@ struct GameResult: Decodable {
         case seoDescription = "seo_description"
         case seoKeywords = "seo_keywords"
         case seoH1 = "seo_h1"
-        case noindex, nofollow, description, filters
+        case noindex, nofollow, description
         case nofollowCollections = "nofollow_collections"
     }
 }
 
-// MARK: - Filters
-struct Filters: Decodable {
-    let years: [FiltersYear]?
-}
 
-// MARK: - FiltersYear
-struct FiltersYear: Decodable {
-    let from, to: Int?
-    let filter: String?
-    let decade: Int?
-    let years: [YearYear]?
-    let nofollow: Bool?
-    let count: Int?
-}
 
 // MARK: - YearYear
 struct YearYear: Decodable {
@@ -176,14 +162,12 @@ struct PlatformPlatform: Decodable {
     let name, slug: String?
     let image, yearEnd: String?
     let yearStart: Int?
-    let gamesCount: Int?
     let imageBackground: String?
 
     enum CodingKeys: String, CodingKey {
         case id, name, slug, image
         case yearEnd = "year_end"
         case yearStart = "year_start"
-        case gamesCount = "games_count"
         case imageBackground = "image_background"
     }
 }
