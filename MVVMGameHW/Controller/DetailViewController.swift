@@ -10,14 +10,22 @@ import SDWebImage
 
 class DetailViewController: UIViewController {
     
-    let detailCollectionView: UICollectionView = {
+    let tagCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = Colors.secondBackgroundColor
-        //collectionView.contentInsetAdjustmentBehavior = .never
-        collectionView.bounces = false
+        return collectionView
+    }()
+    
+    let screenShotsCollectionView: UICollectionView  = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
     
@@ -38,7 +46,8 @@ class DetailViewController: UIViewController {
     
     let backGroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.cellColor
+        view.isUserInteractionEnabled = true
+        view.backgroundColor = Colors.secondBackgroundColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -167,6 +176,19 @@ class DetailViewController: UIViewController {
         label.textAlignment = .left
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.isUserInteractionEnabled = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let tagsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "TAGS"
+        label.textColor = Colors.darkGray
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.isUserInteractionEnabled = true
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -178,23 +200,75 @@ class DetailViewController: UIViewController {
     }
     
     var id = 0
-    
-    override func viewDidLayoutSubviews() {
-        print(scrollView.frame.height)
-        print("container \(backGroundView.frame.height)")
-    }
+    var englishAllText: String = ""
+    var isShowingFullText = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.load(id: id)
-        view.backgroundColor = Colors.cellColor
-        
+        setupViews()
+        let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
+      //  labelTapGesture.cancelsTouchesInView = false
+        descriptonLabel.addGestureRecognizer(labelTapGesture)
+       // setupTagCollectionView()
+        setupScreenCollectionView()
+    }
+    
+    @objc private func labelTapped(){
+        isShowingFullText.toggle()
+        if isShowingFullText {
+            descriptonLabel.text = englishAllText
+        } else {
+            setupDescriptionLabel(text: extractFirstTwoSentences(from: englishAllText))
+        }
+    }
+    
+    func setupDescriptionLabel(text: String) {
+        let fullTextWithContinue = "\(text)...continue"
+        let attributedString = NSMutableAttributedString(string: fullTextWithContinue)
+        let continueRange = NSRange(location: text.count, length: 11)
+        attributedString.addAttribute(.foregroundColor, value: Colors.blueColor, range: continueRange)
+        descriptonLabel.attributedText = attributedString
+    }
+
+    private func setupTagCollectionView(){
+        tagCollectionView.delegate = self
+        tagCollectionView.dataSource = self
+        tagCollectionView.register(TagCell.self, forCellWithReuseIdentifier: TagCell.identifier)
+        backGroundView.addSubview(tagCollectionView)
+        tagCollectionView.topAnchor.constraint(equalTo: tagsLabel.bottomAnchor, constant: 4).isActive = true
+        tagCollectionView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
+        tagCollectionView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
+        tagCollectionView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+    }
+    
+    private func setupScreenCollectionView(){
+        screenShotsCollectionView.delegate = self
+        screenShotsCollectionView.dataSource = self
+        screenShotsCollectionView.register(ScreenCell.self, forCellWithReuseIdentifier: ScreenCell.identifier)
+        backGroundView.addSubview(screenShotsCollectionView)
+        screenShotsCollectionView.topAnchor.constraint(equalTo: descriptonLabel.bottomAnchor, constant: 4).isActive = true
+        screenShotsCollectionView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
+        screenShotsCollectionView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
+        screenShotsCollectionView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+    }
+    
+    let oylesineStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private func setupViews(){
+        view.backgroundColor = Colors.secondBackgroundColor
         view.addSubview(scrollView)
         scrollView.addSubview(backGroundView)
         backGroundView.addSubview(gameImageView)
         backGroundView.addSubview(nameLabel)
         backGroundView.addSubview(horizantalStackView)
         backGroundView.addSubview(descriptonLabel)
+        backGroundView.addSubview(tagsLabel)
         
         horizantalStackView.addArrangedSubview(leftVerticalStackView)
         horizantalStackView.addArrangedSubview(rightVerticalStackView)
@@ -219,6 +293,7 @@ class DetailViewController: UIViewController {
         backGroundView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
         backGroundView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
         backGroundView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+       // backGroundView.heightAnchor.constraint(equalToConstant: 800).isActive = true
         
         // GameImageView Constraints
         gameImageView.topAnchor.constraint(equalTo: backGroundView.topAnchor).isActive = true
@@ -242,21 +317,13 @@ class DetailViewController: UIViewController {
         descriptonLabel.topAnchor.constraint(equalTo: horizantalStackView.bottomAnchor, constant: 16).isActive = true
         descriptonLabel.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
         descriptonLabel.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
-        descriptonLabel.bottomAnchor.constraint(equalTo: backGroundView.bottomAnchor, constant: -16).isActive = true
+       // descriptonLabel.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        //descriptonLabel.bottomAnchor.constraint(equalTo: backGroundView.bottomAnchor, constant: -16).isActive = true
         
-      //  setupCollectionView()
-        
-    }
+        //Tags Constraints
+        tagsLabel.topAnchor.constraint(equalTo: descriptonLabel.bottomAnchor, constant: 16).isActive = true
+        tagsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
 
-    private func setupCollectionView(){
-        detailCollectionView.delegate = self
-        detailCollectionView.dataSource = self
-        detailCollectionView.register(DetailCell.self, forCellWithReuseIdentifier: DetailCell.identifier)
-        view.addSubview(detailCollectionView)
-        detailCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        detailCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        detailCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        detailCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     }
     
     func configure(gameDetail: GameDetail){
@@ -277,12 +344,28 @@ class DetailViewController: UIViewController {
         guard let developers = gameDetail.developers else { return }
         let developersAll = developers.map({$0.name ?? "none"})
         let developersText = developersAll.joined(separator: ", ")
-        print(developersText)
         developerDetailLabel.text = developersText
         releaseDetailLabel.text = gameDetail.released
         
-        let englishText = extractEnglishPart(from: gameDetail.descriptionRaw ?? " ")
-        descriptonLabel.text = englishText
+        englishAllText = extractEnglishPart(from: gameDetail.descriptionRaw ?? " ")
+        setupDescriptionLabel(text: extractFirstTwoSentences(from: englishAllText))
+    }
+    
+    func extractFirstTwoSentences(from text: String) -> String {
+        var sentenceCount = 0
+        var endIndex = text.startIndex
+        
+        for (index, character) in text.enumerated() {
+            if character == "." {
+                sentenceCount += 1
+                if sentenceCount == 2 {
+                    endIndex = text.index(text.startIndex, offsetBy: index)
+                    break
+                }
+            }
+        }
+        
+        return String(text[..<endIndex])
     }
     
     func extractEnglishPart(from text: String) -> String {
@@ -292,29 +375,81 @@ class DetailViewController: UIViewController {
         }
         return text
     }
+    var totalWidth: CGFloat = 0
+    func isExceedingScreenWidth() -> Int? {
+        let screenWidth = UIScreen.main.bounds.width
+        guard let tags = viewModel.gameDetails?.tags else{return nil}
+        for i in 0...tags.count-1 {
+            guard let text = viewModel.gameDetails?.tags?[i].name else{return 5}
+              let width = (text.size(withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .semibold)]).width) + 20  // Padding değeri 12 sol 12 sağ 6 arası
+              totalWidth += width
+              if totalWidth > screenWidth{
+                  if i == 2{
+                      continue
+                  }else{
+                      return i
+                  }
+              }
+          }
+            return 5
+        }
+    
+    var maxCount = 0
 
 }
 
 extension DetailViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailCell.identifier, for: indexPath) as! DetailCell
-        if let gameDetail = viewModel.gameDetails{
-            cell.configure(gameDetail: gameDetail)
-            cell.heightCGFloat = view.frame.height*0.3
+        switch collectionView{
+        case tagCollectionView:
+            return maxCount
+        case screenShotsCollectionView:
+            return viewModel.screenShots?.results?.count ?? 0
+        default:
+            return 0
         }
-        return cell
+    }
+     
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        switch collectionView{
+        case tagCollectionView:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TagCell.identifier, for: indexPath) as! TagCell
+                
+            if indexPath.row == maxCount-1{
+                cell.configure(gameTag: "+")
+            }else{
+                if let tag = viewModel.gameDetails?.tags?[indexPath.row].name{
+                    cell.configure(gameTag: tag)
+                }
+            }
+            return cell
+        case screenShotsCollectionView:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ScreenCell.identifier, for: indexPath) as! ScreenCell
+            if let screen = viewModel.screenShots?.results?[indexPath.row]{
+                cell.configure(screenShots: screen)
+            }
+            
+            return cell
+        default:
+            return UICollectionViewCell()
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (self.detailCollectionView.bounds.size.width),
-                      height: (self.detailCollectionView.bounds.size.height))
+        switch collectionView{
+        case screenShotsCollectionView:
+            return CGSize(width: 100, height: view.frame.height*0.15)
+        default:
+            return CGSize(width: tagCollectionView.frame.width, height: tagCollectionView.frame.height)
+        }
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 6
+    }
 }
 
 
@@ -329,14 +464,21 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     }
     
     func reloadData() {
-        DispatchQueue.main.async {
-            self.detailCollectionView.reloadData()
-        }
+    
         if let gameDetails = viewModel.gameDetails{
             DispatchQueue.main.async {
                 self.configure(gameDetail: gameDetails)
+                self.maxCount = self.isExceedingScreenWidth() ?? 6
+
+                self.tagCollectionView.reloadData()
+                self.screenShotsCollectionView.reloadData()
             }
         }
+        
+        
+        
+        print("Girdi")
+        print(viewModel.screenShots?.count)
     }
     
     
