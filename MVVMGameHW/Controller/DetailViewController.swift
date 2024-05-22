@@ -39,7 +39,7 @@ class DetailViewController: UIViewController {
     let scrollStackViewContainer: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 0
+        view.spacing = 8
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -193,6 +193,12 @@ class DetailViewController: UIViewController {
         return label
     }()
     
+    let screenImageView: UIImageView = {
+       let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     var viewModel: DetailViewModelProtocol!{
         didSet{
             viewModel.delegate = self
@@ -202,6 +208,9 @@ class DetailViewController: UIViewController {
     var id = 0
     var englishAllText: String = ""
     var isShowingFullText = false
+    var timer: Timer?
+    var currentIndexPath: IndexPath = IndexPath(item: 0, section: 0)
+    var selectedIndexPath: IndexPath?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -210,9 +219,42 @@ class DetailViewController: UIViewController {
         let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
       //  labelTapGesture.cancelsTouchesInView = false
         descriptonLabel.addGestureRecognizer(labelTapGesture)
-       // setupTagCollectionView()
+        setupTagCollectionView()
         setupScreenCollectionView()
+        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(updateIndexPath), userInfo: nil, repeats: true)
+
     }
+    
+    @objc func updateIndexPath() {
+         // Önceki seçili hücreyi sıfırlama yeri burası
+         if let previousIndexPath = selectedIndexPath,
+            let previousCell = screenShotsCollectionView.cellForItem(at: previousIndexPath) as? ScreenCell {
+             previousCell.backView.layer.borderColor = UIColor.clear.cgColor
+             previousCell.backView.layer.borderWidth = 0
+             previousCell.arrowImageView.isHidden = true
+         }
+
+         // Yeni indexPath'i hesaplama yeri burası
+         let numberOfItems = screenShotsCollectionView.numberOfItems(inSection: 0)
+         let nextItem = (currentIndexPath.item + 1) % numberOfItems
+         currentIndexPath = IndexPath(item: nextItem, section: 0)
+
+         // Yeni seçili hücreyi güncelleme yeri burası
+         if let cell = screenShotsCollectionView.cellForItem(at: currentIndexPath) as? ScreenCell {
+             cell.backView.layer.borderColor = UIColor.white.cgColor
+             cell.backView.layer.borderWidth = 3
+             cell.arrowImageView.isHidden = false
+             DispatchQueue.main.async {
+                 self.screenImageView.image = cell.gameImageView.image
+             }
+             screenShotsCollectionView.scrollToItem(at: currentIndexPath, at: .centeredHorizontally, animated: true)
+             selectedIndexPath = currentIndexPath
+         }
+     }
+    
+    deinit {
+            timer?.invalidate()
+        }
     
     @objc private func labelTapped(){
         isShowingFullText.toggle()
@@ -235,102 +277,127 @@ class DetailViewController: UIViewController {
         tagCollectionView.delegate = self
         tagCollectionView.dataSource = self
         tagCollectionView.register(TagCell.self, forCellWithReuseIdentifier: TagCell.identifier)
-        backGroundView.addSubview(tagCollectionView)
-        tagCollectionView.topAnchor.constraint(equalTo: tagsLabel.bottomAnchor, constant: 4).isActive = true
-        tagCollectionView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
-        tagCollectionView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
-        tagCollectionView.heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
     
     private func setupScreenCollectionView(){
         screenShotsCollectionView.delegate = self
         screenShotsCollectionView.dataSource = self
         screenShotsCollectionView.register(ScreenCell.self, forCellWithReuseIdentifier: ScreenCell.identifier)
-        backGroundView.addSubview(screenShotsCollectionView)
-        screenShotsCollectionView.topAnchor.constraint(equalTo: descriptonLabel.bottomAnchor, constant: 4).isActive = true
-        screenShotsCollectionView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
-        screenShotsCollectionView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
-        screenShotsCollectionView.heightAnchor.constraint(equalToConstant: 200).isActive = true
     }
     
-    let oylesineStackView: UIStackView = {
+    let infoStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
+    let infoView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    let tagView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    
     private func setupViews(){
         view.backgroundColor = Colors.secondBackgroundColor
+        
         view.addSubview(scrollView)
-        scrollView.addSubview(backGroundView)
-        backGroundView.addSubview(gameImageView)
-        backGroundView.addSubview(nameLabel)
-        backGroundView.addSubview(horizantalStackView)
-        backGroundView.addSubview(descriptonLabel)
-        backGroundView.addSubview(tagsLabel)
+        scrollView.addSubview(scrollStackViewContainer)
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor).isActive = true
         
-        horizantalStackView.addArrangedSubview(leftVerticalStackView)
-        horizantalStackView.addArrangedSubview(rightVerticalStackView)
+        scrollView.addSubview(scrollStackViewContainer)
+        scrollStackViewContainer.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        scrollStackViewContainer.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        scrollStackViewContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        scrollStackViewContainer.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        scrollStackViewContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         
+        scrollStackViewContainer.addArrangedSubview(gameImageView)
+        gameImageView.heightAnchor.constraint(equalToConstant: view.frame.height*0.25).isActive = true
+        
+        scrollStackViewContainer.addArrangedSubview(infoView)
+        
+        infoView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        infoView.addSubview(leftVerticalStackView)
+        
+        leftVerticalStackView.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        leftVerticalStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
         leftVerticalStackView.addArrangedSubview(developerLabel)
         leftVerticalStackView.addArrangedSubview(publisherLabel)
         leftVerticalStackView.addArrangedSubview(releaseLabel)
         
+        infoView.addSubview(rightVerticalStackView)
         rightVerticalStackView.addArrangedSubview(developerDetailLabel)
         rightVerticalStackView.addArrangedSubview(publisherDetailLabel)
         rightVerticalStackView.addArrangedSubview(releaseDetailLabel)
+        rightVerticalStackView.leadingAnchor.constraint(equalTo: leftVerticalStackView.trailingAnchor, constant: 8).isActive = true
 
-        // ScrollView Constraints
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        
-        // BackgroundView Constraints
-        backGroundView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        backGroundView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        backGroundView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        backGroundView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        backGroundView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-       // backGroundView.heightAnchor.constraint(equalToConstant: 800).isActive = true
-        
-        // GameImageView Constraints
-        gameImageView.topAnchor.constraint(equalTo: backGroundView.topAnchor).isActive = true
-        gameImageView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor).isActive = true
-        gameImageView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor).isActive = true
-        gameImageView.heightAnchor.constraint(equalToConstant: view.frame.height * 0.25).isActive = true
-        
-        // NameLabel Constraints
-        nameLabel.topAnchor.constraint(equalTo: gameImageView.bottomAnchor, constant: 8).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
+        let descriptionWrapper = UIView()
+        descriptionWrapper.addSubview(descriptonLabel)
+        NSLayoutConstraint.activate([
+            descriptonLabel.leadingAnchor.constraint(equalTo: descriptionWrapper.leadingAnchor, constant: 8), // Sol boşluk
+            descriptonLabel.trailingAnchor.constraint(equalTo: descriptionWrapper.trailingAnchor, constant: -8),
+            descriptonLabel.topAnchor.constraint(equalTo: descriptionWrapper.topAnchor),
+            descriptonLabel.bottomAnchor.constraint(equalTo: descriptionWrapper.bottomAnchor)
+        ])
 
-        // HorizontalStackView Constraints
-        horizantalStackView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8).isActive = true
-        horizantalStackView.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
-        horizantalStackView.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
+        scrollStackViewContainer.addArrangedSubview(descriptionWrapper)
         
-        // LeftVerticalStackView Constraints
-        leftVerticalStackView.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        let tagWrapper = UIView()
+        tagWrapper.addSubview(tagsLabel)
+        NSLayoutConstraint.activate([
+            tagsLabel.leadingAnchor.constraint(equalTo: tagWrapper.leadingAnchor, constant: 8), // Sol boşluk
+            tagsLabel.trailingAnchor.constraint(equalTo: tagWrapper.trailingAnchor, constant: -8),
+            tagsLabel.topAnchor.constraint(equalTo: tagWrapper.topAnchor),
+            tagsLabel.bottomAnchor.constraint(equalTo: tagWrapper.bottomAnchor)
+        ])
+        scrollStackViewContainer.addArrangedSubview(tagWrapper)
+    
+        scrollStackViewContainer.addArrangedSubview(tagCollectionView)
+        tagCollectionView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        // DescriptionLabel Constraints
-        descriptonLabel.topAnchor.constraint(equalTo: horizantalStackView.bottomAnchor, constant: 16).isActive = true
-        descriptonLabel.leadingAnchor.constraint(equalTo: backGroundView.leadingAnchor, constant: 8).isActive = true
-        descriptonLabel.trailingAnchor.constraint(equalTo: backGroundView.trailingAnchor, constant: -8).isActive = true
-       // descriptonLabel.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        //descriptonLabel.bottomAnchor.constraint(equalTo: backGroundView.bottomAnchor, constant: -16).isActive = true
+
+        let screenImageViewWrapper = UIView()
+        screenImageViewWrapper.addSubview(screenImageView)
+        NSLayoutConstraint.activate([
+            screenImageView.leadingAnchor.constraint(equalTo: screenImageViewWrapper.leadingAnchor, constant: 8),
+            screenImageView.trailingAnchor.constraint(equalTo: screenImageViewWrapper.trailingAnchor, constant: -8),
+            screenImageView.topAnchor.constraint(equalTo: screenImageViewWrapper.topAnchor),
+            screenImageView.bottomAnchor.constraint(equalTo: screenImageViewWrapper.bottomAnchor),
+            screenImageView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        scrollStackViewContainer.addArrangedSubview(screenImageViewWrapper)
         
-        //Tags Constraints
-        tagsLabel.topAnchor.constraint(equalTo: descriptonLabel.bottomAnchor, constant: 16).isActive = true
-        tagsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
+        scrollStackViewContainer.addArrangedSubview(screenShotsCollectionView)
+        scrollStackViewContainer.setCustomSpacing(-12, after: screenImageViewWrapper)
+        screenShotsCollectionView.heightAnchor.constraint(equalToConstant: 90).isActive = true
+        
+        //scrollStackViewContainer.backgroundColor = .red
 
     }
     
-    func configure(gameDetail: GameDetail){
+    func configure(gameDetail: GameDetail, screenShots: ScreenShot){
         if let urlString = gameDetail.backgroundImage{
             let url = URL(string: urlString)
             DispatchQueue.main.async {
                 self.gameImageView.sd_setImage(with: url)
+            }
+        }
+        
+        if let urlString = screenShots.results?.first?.image{
+            let url = URL(string: urlString)
+            DispatchQueue.main.async {
+                self.screenImageView.sd_setImage(with: url)
             }
         }
         
@@ -349,6 +416,7 @@ class DetailViewController: UIViewController {
         
         englishAllText = extractEnglishPart(from: gameDetail.descriptionRaw ?? " ")
         setupDescriptionLabel(text: extractFirstTwoSentences(from: englishAllText))
+        
     }
     
     func extractFirstTwoSentences(from text: String) -> String {
@@ -441,15 +509,49 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         switch collectionView{
         case screenShotsCollectionView:
-            return CGSize(width: 100, height: view.frame.height*0.15)
+            return CGSize(width: 120, height: 90)
         default:
             return CGSize(width: tagCollectionView.frame.width, height: tagCollectionView.frame.height)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        switch collectionView{
+        case screenShotsCollectionView:
+            if let previousIndexPath = selectedIndexPath,
+               let previousCell = collectionView.cellForItem(at: previousIndexPath) as? ScreenCell {
+                previousCell.backView.layer.borderColor = UIColor.clear.cgColor
+                previousCell.backView.layer.borderWidth = 0
+                previousCell.arrowImageView.isHidden = true
+            }
+            
+            if let cell = collectionView.cellForItem(at: indexPath) as? ScreenCell {
+                cell.backView.layer.borderColor = UIColor.white.cgColor
+                cell.backView.layer.borderWidth = 3
+                cell.arrowImageView.isHidden = false
+                DispatchQueue.main.async {
+                    self.screenImageView.image = cell.gameImageView.image
+                }
+                
+                selectedIndexPath = indexPath
+                currentIndexPath = indexPath
+            }
+            
+        default:
+            break
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 6
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+    }
+    
+    
+    
 }
 
 
@@ -465,11 +567,10 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     
     func reloadData() {
     
-        if let gameDetails = viewModel.gameDetails{
+        if let gameDetails = viewModel.gameDetails, let screenShots = viewModel.screenShots{
             DispatchQueue.main.async {
-                self.configure(gameDetail: gameDetails)
+                self.configure(gameDetail: gameDetails, screenShots: screenShots)
                 self.maxCount = self.isExceedingScreenWidth() ?? 6
-
                 self.tagCollectionView.reloadData()
                 self.screenShotsCollectionView.reloadData()
             }
@@ -477,8 +578,6 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
         
         
         
-        print("Girdi")
-        print(viewModel.screenShots?.count)
     }
     
     

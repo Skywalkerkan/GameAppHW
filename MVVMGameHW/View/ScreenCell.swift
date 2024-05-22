@@ -26,11 +26,25 @@ class ScreenCell: UICollectionViewCell {
         return view
     }()
     
+    let arrowImageView: UIImageView = {
+       let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "arrowtriangle.up.fill")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isHidden = true
+        return imageView
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
+    
+        addSubview(arrowImageView)
+        arrowImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        arrowImageView.heightAnchor.constraint(equalToConstant: 18).isActive = true
+        arrowImageView.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        arrowImageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         
         addSubview(backView)
-        backView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        backView.topAnchor.constraint(equalTo: arrowImageView.bottomAnchor, constant: -2).isActive = true
         backView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         backView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         backView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
