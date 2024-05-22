@@ -35,11 +35,9 @@ final class HomeViewModel{
     fileprivate func fetchGames(nextPage: String?){
         self.delegate?.showLoadingView()
         service.fetchListOfGames(nextPage: nextPage ?? nil) { [weak self] result in
-            print("ok")
             switch result{
             case .success(let gameResult):
                 DispatchQueue.main.async {
-                    print("Yükleniyor")
                     self?.delegate?.hideLoadingView()
                     self?.games += gameResult.results ?? []
                     self?.nextPage = gameResult.next

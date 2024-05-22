@@ -29,7 +29,7 @@ class GameCell: UICollectionViewCell {
     let genresLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = Colors.thrdLabelColor
+        label.textColor = Colors.thirdLabelColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -54,7 +54,6 @@ class GameCell: UICollectionViewCell {
     private func setupViews(){
         
         backgroundColor = Colors.cellColor
-        
         addSubview(gameImageView)
         gameImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         gameImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true

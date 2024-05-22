@@ -24,6 +24,7 @@
 		DEA4FFE22BFCB02700702FC5 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA4FFE12BFCB02700702FC5 /* LoadingView.swift */; };
 		DEA4FFE42BFCD01000702FC5 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA4FFE32BFCD01000702FC5 /* Colors.swift */; };
 		DEA4FFE62BFCD05000702FC5 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA4FFE52BFCD05000702FC5 /* Color.swift */; };
+		DEA4FFE92BFD6DC500702FC5 /* ScreenShot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA4FFE82BFD6DC500702FC5 /* ScreenShot.swift */; };
 		DEB60E322BFA22C40048779A /* NetworkErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E312BFA22C40048779A /* NetworkErrors.swift */; };
 		DEB60E342BFA24140048779A /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E332BFA24140048779A /* Game.swift */; };
 		DEB60E362BFA2B650048779A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E352BFA2B650048779A /* Constants.swift */; };
@@ -53,6 +54,7 @@
 		DEA4FFE12BFCB02700702FC5 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		DEA4FFE32BFCD01000702FC5 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		DEA4FFE52BFCD05000702FC5 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		DEA4FFE82BFD6DC500702FC5 /* ScreenShot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShot.swift; sourceTree = "<group>"; };
 		DEB60E312BFA22C40048779A /* NetworkErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrors.swift; sourceTree = "<group>"; };
 		DEB60E332BFA24140048779A /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		DEB60E352BFA2B650048779A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 			children = (
 				DEB60E332BFA24140048779A /* Game.swift */,
 				DE7C2A512BFB8E4C0021CF35 /* GameDetail.swift */,
+				DEA4FFE82BFD6DC500702FC5 /* ScreenShot.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE461A142BF913C800695239 /* HomeViewController.swift in Sources */,
+				DEA4FFE92BFD6DC500702FC5 /* ScreenShot.swift in Sources */,
 				DEA4FFE42BFCD01000702FC5 /* Colors.swift in Sources */,
 				DEB60E382BFA34190048779A /* HomeViewModel.swift in Sources */,
 				DE461A102BF913C800695239 /* AppDelegate.swift in Sources */,

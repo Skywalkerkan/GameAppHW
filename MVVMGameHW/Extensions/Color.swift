@@ -13,7 +13,6 @@ extension UIColor {
         assert(0...255 ~= red, "Geçersiz kırmızı bileşeni")
         assert(0...255 ~= green, "Geçersiz yeşil bileşeni")
         assert(0...255 ~= blue, "Geçersiz mavi bileşeni")
-        print(red, green, blue)
         self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha)
     }
     
