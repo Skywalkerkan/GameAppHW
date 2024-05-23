@@ -7,8 +7,12 @@
 
 import UIKit
 import SDWebImage
+import AVFoundation
 
 class DetailViewController: UIViewController {
+    
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
     
     let tagCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -25,6 +29,8 @@ class DetailViewController: UIViewController {
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
+        collectionView.bounces = false
+        collectionView.showsHorizontalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
@@ -211,7 +217,8 @@ class DetailViewController: UIViewController {
     var timer: Timer?
     var currentIndexPath: IndexPath = IndexPath(item: 0, section: 0)
     var selectedIndexPath: IndexPath?
-    
+    var previousIndexPath: IndexPath?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.load(id: id)
@@ -221,7 +228,7 @@ class DetailViewController: UIViewController {
         descriptonLabel.addGestureRecognizer(labelTapGesture)
         setupTagCollectionView()
         setupScreenCollectionView()
-        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(updateIndexPath), userInfo: nil, repeats: true)
+      //  timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(updateIndexPath), userInfo: nil, repeats: true)
 
     }
     
@@ -254,6 +261,7 @@ class DetailViewController: UIViewController {
     
     deinit {
             timer?.invalidate()
+            player?.pause()
         }
     
     @objc private func labelTapped(){
@@ -304,6 +312,7 @@ class DetailViewController: UIViewController {
         return view
     }()
     
+    let screenImageViewWrapper = UIView()
     
     private func setupViews(){
         view.backgroundColor = Colors.secondBackgroundColor
@@ -367,7 +376,7 @@ class DetailViewController: UIViewController {
         tagCollectionView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
 
-        let screenImageViewWrapper = UIView()
+       // let screenImageViewWrapper = UIView()
         screenImageViewWrapper.addSubview(screenImageView)
         NSLayoutConstraint.activate([
             screenImageView.leadingAnchor.constraint(equalTo: screenImageViewWrapper.leadingAnchor, constant: 8),
@@ -382,8 +391,6 @@ class DetailViewController: UIViewController {
         scrollStackViewContainer.setCustomSpacing(-12, after: screenImageViewWrapper)
         screenShotsCollectionView.heightAnchor.constraint(equalToConstant: 90).isActive = true
         
-        //scrollStackViewContainer.backgroundColor = .red
-
     }
     
     func configure(gameDetail: GameDetail, screenShots: ScreenShot){
@@ -463,6 +470,31 @@ class DetailViewController: UIViewController {
         }
     
     var maxCount = 0
+    
+    func setupVideoPlayer(in outerView: UIView, urlString: String?) {
+        guard let urlString = urlString,
+              let videoURL = URL(string: urlString) else {
+            print("Invalid URL")
+            return
+        }
+        print(urlString)
+        //sublayerın çıkarılması her defasında eklenmemesi için bu lazım
+        outerView.layer.sublayers?.forEach { layer in
+             if layer is AVPlayerLayer {
+                 layer.removeFromSuperlayer()
+             }
+         }
+        
+        player = AVPlayer(url: videoURL)
+        playerLayer = AVPlayerLayer(player: player)
+        playerLayer?.videoGravity = .resize
+        playerLayer?.backgroundColor = UIColor.black.cgColor
+        playerLayer?.frame = CGRect(x: 8, y: 0, width: view.frame.width-16, height: view.frame.height*0.25)
+        guard let playerLayer = playerLayer else{return}
+        outerView.layer.addSublayer(playerLayer)
+        player?.play()
+    }
+    
 
 }
 
@@ -473,7 +505,7 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
         case tagCollectionView:
             return maxCount
         case screenShotsCollectionView:
-            return viewModel.screenShots?.results?.count ?? 0
+            return viewModel.mediaItems?.count ?? 0
         default:
             return 0
         }
@@ -495,8 +527,23 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
             return cell
         case screenShotsCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ScreenCell.identifier, for: indexPath) as! ScreenCell
-            if let screen = viewModel.screenShots?.results?[indexPath.row]{
-                cell.configure(screenShots: screen)
+
+            if let mediaItem = viewModel.mediaItems?[indexPath.row]{
+                switch mediaItem{
+                case .screenshot(let screenShot):
+                    cell.configure(imageString: screenShot.image)
+                case .trailer(let trailer):
+                    cell.configure(imageString: trailer.preview)
+                }
+                if indexPath == selectedIndexPath{
+                    cell.backView.layer.borderColor = UIColor.white.cgColor
+                    cell.backView.layer.borderWidth = 3
+                    cell.arrowImageView.isHidden = false
+                }else{
+                    cell.backView.layer.borderColor = UIColor.white.cgColor
+                    cell.backView.layer.borderWidth = 0
+                    cell.arrowImageView.isHidden = true
+                }
             }
             
             return cell
@@ -516,30 +563,54 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        switch collectionView{
-        case screenShotsCollectionView:
-            if let previousIndexPath = selectedIndexPath,
-               let previousCell = collectionView.cellForItem(at: previousIndexPath) as? ScreenCell {
-                previousCell.backView.layer.borderColor = UIColor.clear.cgColor
-                previousCell.backView.layer.borderWidth = 0
-                previousCell.arrowImageView.isHidden = true
-            }
-            
-            if let cell = collectionView.cellForItem(at: indexPath) as? ScreenCell {
-                cell.backView.layer.borderColor = UIColor.white.cgColor
-                cell.backView.layer.borderWidth = 3
-                cell.arrowImageView.isHidden = false
-                DispatchQueue.main.async {
-                    self.screenImageView.image = cell.gameImageView.image
+        
+            deselectCell(at: previousIndexPath)
+            selectCell(at: indexPath)
+            selectedIndexPath = indexPath
+            previousIndexPath = selectedIndexPath
+        
+        if let media = viewModel.mediaItems?[indexPath.row] {
+            switch media {
+            case .trailer(let trailer):
+                if let urlString = trailer.data?.the480 {
+                    setupVideoPlayer(in: screenImageViewWrapper, urlString: urlString)
+                } else {
+                    player?.pause()
+                    removeVideoPlayer()
                 }
-                
-                selectedIndexPath = indexPath
-                currentIndexPath = indexPath
+            default:
+                player?.pause()
+                removeVideoPlayer()
             }
-            
-        default:
-            break
         }
+    }
+
+    func deselectCell(at indexPath: IndexPath?) {
+        
+        if let previousCell = screenShotsCollectionView.cellForItem(at: indexPath ?? [0, 0]) as? ScreenCell{
+            previousCell.backView.layer.borderColor = UIColor.white.cgColor
+            previousCell.backView.layer.borderWidth = 0
+            previousCell.arrowImageView.isHidden = true
+        }
+    }
+    
+    func selectCell(at indexPath: IndexPath?) {
+        
+        if let chosenCell = screenShotsCollectionView.cellForItem(at: indexPath ?? [0, 0]) as? ScreenCell{
+            chosenCell.backView.layer.borderColor = UIColor.white.cgColor
+            chosenCell.backView.layer.borderWidth = 3
+            chosenCell.arrowImageView.isHidden = false
+            screenImageView.image = chosenCell.gameImageView.image
+        }
+    }
+    
+    func removeVideoPlayer() {
+        screenImageViewWrapper.layer.sublayers?.forEach { layer in
+            if layer is AVPlayerLayer {
+                layer.removeFromSuperlayer()
+            }
+        }
+        screenImageView.isHidden = false
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -567,7 +638,9 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     
     func reloadData() {
     
-        if let gameDetails = viewModel.gameDetails, let screenShots = viewModel.screenShots{
+        if let gameDetails = viewModel.gameDetails, 
+            let screenShots = viewModel.screenShots,
+           let trailer = viewModel.trailers{
             DispatchQueue.main.async {
                 self.configure(gameDetail: gameDetails, screenShots: screenShots)
                 self.maxCount = self.isExceedingScreenWidth() ?? 6
@@ -575,9 +648,6 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
                 self.screenShotsCollectionView.reloadData()
             }
         }
-        
-        
-        
     }
     
     

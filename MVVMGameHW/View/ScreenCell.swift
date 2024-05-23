@@ -17,7 +17,7 @@ class ScreenCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    
+        
     let backView: UIView = {
         let view = UIView()
         view.backgroundColor = Colors.tagColor
@@ -57,12 +57,13 @@ class ScreenCell: UICollectionViewCell {
         
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(screenShots: ScreenShotResult){
-        if let url = URL(string: screenShots.image ?? ""){
+    func configure(imageString: String?){
+        if let url = URL(string: imageString ?? ""){
             gameImageView.sd_setImage(with: url)
         }
     }

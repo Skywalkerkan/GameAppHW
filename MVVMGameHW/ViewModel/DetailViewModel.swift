@@ -18,6 +18,13 @@ protocol DetailViewModelProtocol{
     func load(id: Int?)
     var gameDetails: GameDetail? { get }
     var screenShots: ScreenShot? { get }
+    var trailers: Trailer? { get }
+    var mediaItems: [MediaItem]? { get }
+}
+
+enum MediaItem {
+    case screenshot(ScreenShotResult)
+    case trailer(TrailerResult)
 }
 
 final class DetailViewModel{
@@ -25,6 +32,8 @@ final class DetailViewModel{
     let service: GameServiceProtocol
     var gameDetail: GameDetail?
     var screenShot: ScreenShot?
+    var mediaItem: [MediaItem]?
+    var trailer: Trailer?
     weak var delegate: DetailViewModelDelegate?
     
     init(service: GameServiceProtocol) {
@@ -90,10 +99,25 @@ final class DetailViewModel{
         }
     }
     
+    fileprivate func fetchTrailers(id: Int, completion: @escaping (Swift.Result<Void, Error>) -> Void) {
+        service.fetchTrailers(id: id) { [weak self] result in
+            switch result {
+            case .success(let trailers):
+                self?.trailer = trailers
+                completion(.success(()))
+            case .failure(let error):
+                print(error.localizedDescription)
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    
 }
 
 extension DetailViewModel: DetailViewModelProtocol{
     
+
    /* func load(id: Int?) {
         guard let id = id else{return}
         fetchSingleGame(id: id)
@@ -101,39 +125,48 @@ extension DetailViewModel: DetailViewModelProtocol{
     }*/
     
     func load(id: Int?) {
-            guard let id = id else { return }
-            
-            let dispatchGroup = DispatchGroup()
-            var fetchError: Error?
-            
-            dispatchGroup.enter()
-            fetchSingleGame(id: id) { result in
-                if case .failure(let error) = result {
-                    fetchError = error
-                }
-                dispatchGroup.leave()
-            }
-            
-            dispatchGroup.enter()
+        guard let id = id else { return }
         
-            fetchScreenShots(id: id) { result in
-                if case .failure(let error) = result {
-                    fetchError = error
-                }
-                dispatchGroup.leave()
+        let dispatchGroup = DispatchGroup()
+        var fetchError: Error?
+        
+        //SİNGLE
+        dispatchGroup.enter()
+        fetchSingleGame(id: id) { result in
+            if case .failure(let error) = result {
+                fetchError = error
             }
-            
-            dispatchGroup.notify(queue: .main) {
-                if let error = fetchError {
-                    print("Error: \(error.localizedDescription)")
-                    return
-                }
-                DispatchQueue.main.async {
-                    self.delegate?.hideLodingView()
-                  }
-                self.delegate?.reloadData()
-            }
+            dispatchGroup.leave()
         }
+        //ScreenShots
+        dispatchGroup.enter()
+        fetchScreenShots(id: id) { result in
+            if case .failure(let error) = result {
+                fetchError = error
+            }
+            dispatchGroup.leave()
+        }
+        
+        //Trailers
+        dispatchGroup.enter()
+        fetchTrailers(id: id) { result in
+            if case .failure(let error) = result {
+                fetchError = error
+            }
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            if let error = fetchError {
+                print("Error: \(error.localizedDescription)")
+                return
+            }
+            DispatchQueue.main.async {
+                self.delegate?.hideLodingView()
+            }
+            self.delegate?.reloadData()
+        }
+    }
 
     var gameDetails: GameDetail?{
         return gameDetail
@@ -141,6 +174,24 @@ extension DetailViewModel: DetailViewModelProtocol{
    
     var screenShots: ScreenShot? {
         return screenShot
+    }
+    
+    var trailers: Trailer? {
+        return trailer
+    }
+    
+    var mediaItems: [MediaItem]? {
+        var items: [MediaItem] = []
+        
+        if let trailers = trailer?.results {
+            items += trailers.map { MediaItem.trailer($0) }
+        }
+        
+        if let screenShots = screenShot?.results {
+            items += screenShots.map { MediaItem.screenshot($0) }
+        }
+        
+        return items
     }
     
 }

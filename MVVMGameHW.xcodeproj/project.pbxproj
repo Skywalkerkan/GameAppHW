@@ -34,6 +34,7 @@
 		DEB60E3A2BFA38710048779A /* GameCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60E392BFA38710048779A /* GameCell.swift */; };
 		DEB60E3D2BFA38BF0048779A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = DEB60E3C2BFA38BF0048779A /* SDWebImage */; };
 		DEB60E3F2BFA38BF0048779A /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DEB60E3E2BFA38BF0048779A /* SDWebImageMapKit */; };
+		DEC1487D2BFF67A100E2A414 /* GameTrailer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC1487C2BFF67A100E2A414 /* GameTrailer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		DEB60E352BFA2B650048779A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		DEB60E372BFA34190048779A /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		DEB60E392BFA38710048779A /* GameCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCell.swift; sourceTree = "<group>"; };
+		DEC1487C2BFF67A100E2A414 /* GameTrailer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTrailer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 				DEB60E332BFA24140048779A /* Game.swift */,
 				DE7C2A512BFB8E4C0021CF35 /* GameDetail.swift */,
 				DEA4FFE82BFD6DC500702FC5 /* ScreenShot.swift */,
+				DEC1487C2BFF67A100E2A414 /* GameTrailer.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				DE9971F22BFE248800503DDB /* ScreenCell.swift in Sources */,
 				DEA4FFE92BFD6DC500702FC5 /* ScreenShot.swift in Sources */,
 				DEA4FFE42BFCD01000702FC5 /* Colors.swift in Sources */,
+				DEC1487D2BFF67A100E2A414 /* GameTrailer.swift in Sources */,
 				DEB60E382BFA34190048779A /* HomeViewModel.swift in Sources */,
 				DE461A102BF913C800695239 /* AppDelegate.swift in Sources */,
 				DE7C2A502BFB8B0D0021CF35 /* DetailViewController.swift in Sources */,

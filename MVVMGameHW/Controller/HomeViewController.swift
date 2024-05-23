@@ -33,7 +33,6 @@ class HomeViewController: UIViewController {
         viewModel.load(nextPage: nil)
         setupCollectionView()
         setupFooter()
-        
     }
     
     private func setupCollectionView(){
@@ -42,7 +41,7 @@ class HomeViewController: UIViewController {
         gameCollectionView.dataSource = self
         gameCollectionView.register(GameCell.self, forCellWithReuseIdentifier: GameCell.identifier)
         gameCollectionView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        gameCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        gameCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }

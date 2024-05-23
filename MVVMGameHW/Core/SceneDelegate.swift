@@ -24,14 +24,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         firstVC.viewModel = gameViewModel
         let secondVC = DetailViewController()
         
+        
         let firstNavigationController = UINavigationController(rootViewController: firstVC)
         let secondNavigationController = UINavigationController(rootViewController: secondVC)
+        
+        firstNavigationController.navigationBar.barTintColor = UIColor.clear
+        firstNavigationController.navigationBar.isTranslucent = false
         
         firstNavigationController.tabBarItem = UITabBarItem(title: "First", image: UIImage(named: "first"), tag: 0)
         secondNavigationController.tabBarItem = UITabBarItem(title: "Second", image: UIImage(named: "second"), tag: 1)
         
         tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
-        
+        let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = Colors.secondBackgroundColor
+            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        tabBarController.tabBar.isTranslucent = false
+
         self.window?.rootViewController = tabBarController
         self.window?.makeKeyAndVisible()
                 
