@@ -209,10 +209,58 @@ class DetailViewController: UIViewController {
         let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(starButtonTapped))
         return button
     }()
+    
+    @objc func starButtonTapped() {
         
+        if isStarred{
+            starButton.image = UIImage(systemName: "star")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(.white)
+            favViewModel.deleteItem(id: id)
+        }else{
+            starButton.image = UIImage(systemName: "star.fill")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(Colors.blueColor)
+            
+            
+            if let gameViewModel = viewModel.gameDetails,
+               let name = gameViewModel.name,
+               let id = gameViewModel.id,
+               let imageData = gameImageView.image?.pngData(),
+               let genres = gameViewModel.genres,
+               let platforms = gameViewModel.parentPlatforms{
+                
+                let platformsString = platforms.reduce(into: "") { result, platform in
+                    if let name = platform.platform?.name {
+                        result += result.isEmpty ? name : ", \(name)"
+                    }
+                }
+
+                let genresString = genres.reduce(into: "") { result, genre in
+                    if let name = genre.name {
+                        result += result.isEmpty ? name : ", \(name)"
+                    }
+                }
+
+
+               let gameModel = GameLocalModel(gameId: id, imageData: imageData, platforms: platformsString, name: name, genres: genresString)
+                favViewModel.saveItem(gameModel: gameModel)
+
+            }
+            
+        }
+        isStarred.toggle()
+      }
+    
     var viewModel: DetailViewModelProtocol!{
         didSet{
             viewModel.delegate = self
+        }
+    }
+    
+    var favViewModel: DetailFavViewModelProtocol!{
+        didSet{
+            favViewModel.delegate = self
         }
     }
     
@@ -225,24 +273,17 @@ class DetailViewController: UIViewController {
     var previousIndexPath: IndexPath?
     var isStarred = false
     
-    @objc func starButtonTapped() {
-        
-        if isStarred{
-            starButton.image = UIImage(systemName: "star")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(.white)
-        }else{
-            starButton.image = UIImage(systemName: "star.fill")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(Colors.blueColor)
-        }
-        isStarred.toggle()
-      }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        favViewModel.isFavorited(id: id)
+
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = starButton
         viewModel.load(id: id)
+      //  favViewModel.load()
         setupViews()
         let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
       //  labelTapGesture.cancelsTouchesInView = false
@@ -682,4 +723,41 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     }
     
     
+}
+
+
+extension DetailViewController: DetailFavViewModelDelegate{
+    func isStarredFunc() {
+        print("İs Starred, \(favViewModel.isStarred)")
+        isStarred = favViewModel.isStarred
+        if isStarred{
+            starButton.image = UIImage(systemName: "star.fill")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(Colors.blueColor)
+        }else{
+            starButton.image = UIImage(systemName: "star")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(.white)
+        }
+    }
+    
+    func deleteGame() {
+        print("sildi")
+        print(favViewModel.isStarred)
+    }
+    
+    func saveGame() {
+        print("yükleme")
+        print(favViewModel.isStarred)
+
+    }
+    
+    func isSaved() {
+        print("sildi")
+
+    }
+    func showDetailFavError() {
+        print("sildi")
+
+    }
 }

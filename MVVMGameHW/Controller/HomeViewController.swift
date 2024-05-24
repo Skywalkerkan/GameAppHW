@@ -58,7 +58,7 @@ extension HomeViewController: UIScrollViewDelegate{
                 let contentHeight = scrollView.contentSize.height
                 let frameHeight = scrollView.frame.size.height
 
-                if offsetY - 100 > contentHeight - frameHeight {
+                if offsetY + 100 > contentHeight - frameHeight {
                     if !shouldShowFooter && !isLoading {
                             shouldShowFooter = true
                             isLoading = true
@@ -93,7 +93,9 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
             if let id = game.id{
                 VC.id = id
                 let detailViewModel = DetailViewModel(service: GameService())
+                let favoriteViewModel = DetailFavViewModel(service: LocalService())
                 VC.viewModel = detailViewModel
+                VC.favViewModel = favoriteViewModel
             }
             navigationController?.pushViewController(VC, animated: true)
         }

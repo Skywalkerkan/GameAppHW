@@ -48,6 +48,7 @@ class SavedGameCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
+        setupCollectionView()
     }
     
     private func setupViews(){
@@ -80,6 +81,41 @@ class SavedGameCell: UICollectionViewCell {
         platformCollectionView.leadingAnchor.constraint(equalTo: gameImageView.trailingAnchor, constant: 8).isActive = true
         platformCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32).isActive = true
 
+    }
+    
+    func configure(game: Game?){
+        
+        if let imageData = game?.image,
+           let name = game?.name,
+           let genres = game?.genres,
+           let platformsString = game?.platforms {
+            
+            gameImageView.image = UIImage(data: imageData)
+            nameLabel.text = name
+            genresLabel.text = genres
+            
+            let platforms = platformsString.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            print(platforms)
+            for platform in platforms {
+                switch platform {
+                case "PC":
+                    if let image = UIImage(systemName: "desktopcomputer") {
+                        platformImages.append(image)
+                    }
+                case "Xbox":
+                    if let image = UIImage(systemName: "xbox.logo") {
+                        platformImages.append(image)
+                    }
+                case "PlayStation":
+                    if let image = UIImage(systemName: "playstation.logo") {
+                        platformImages.append(image)
+                    }
+                default:
+                    break
+                }
+                print(platformImages.count)
+            }
+        }
     }
     
     required init?(coder: NSCoder) {

@@ -13,7 +13,7 @@ class LoadingView{
        let view = UIActivityIndicatorView()
         view.hidesWhenStopped = true
         view.style = .large
-        view.color = .green
+        view.color = Colors.blueColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -38,23 +38,23 @@ class LoadingView{
     }
     
     func configure(){
-       /* blurView.frame = UIWindow(frame: UIScreen.main.bounds).frame
+        blurView.frame = UIWindow(frame: UIScreen.main.bounds).frame
         activityIndicator.center = blurView.center
-        blurView.contentView.addSubview(activityIndicator)*/
-        backGroundView.frame = UIWindow(frame: UIScreen.main.bounds).frame
+        blurView.contentView.addSubview(activityIndicator)
+       /* backGroundView.frame = UIWindow(frame: UIScreen.main.bounds).frame
         activityIndicator.center = backGroundView.center
-        backGroundView.addSubview(activityIndicator)
+        backGroundView.addSubview(activityIndicator)*/
     }
     
     func startLoading(){
-       // UIApplication.shared.windows.first?.addSubview(blurView)
-        UIApplication.shared.windows.first?.addSubview(backGroundView)
+        UIApplication.shared.windows.first?.addSubview(blurView)
+       // UIApplication.shared.windows.first?.addSubview(backGroundView)
         activityIndicator.startAnimating()
     }
     
     func hideLoading() {
         activityIndicator.stopAnimating()
-       // blurView.removeFromSuperview()
-        backGroundView.removeFromSuperview()
+        blurView.removeFromSuperview()
+       // backGroundView.removeFromSuperview()
     }
 }

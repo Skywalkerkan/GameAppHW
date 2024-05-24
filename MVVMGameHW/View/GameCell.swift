@@ -106,6 +106,7 @@ class GameCell: UICollectionViewCell {
                     break
             }
         }
+        print(platformImages.count)
         
     }
     

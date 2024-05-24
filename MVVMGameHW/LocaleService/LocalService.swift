@@ -14,13 +14,11 @@ protocol LocalServiceProtocol {
     func saveGame(gameModel: GameLocalModel, completion: @escaping (Swift.Result<Game, LocalError>) -> Void)
     func fetchGames(completion: @escaping (Swift.Result<[Game], LocalError>) -> Void)
     func deleteGame(id: Int, completion: @escaping (Swift.Result<Void, LocalError>) -> Void)
-
+    func isFavorited(id: Int, completion: @escaping (Bool) -> Void)
 }
 
 // MARK: - LocalService
 class LocalService: LocalServiceProtocol{
-
-    
     
     private let persistentContainer: NSPersistentContainer
      
@@ -76,6 +74,21 @@ class LocalService: LocalServiceProtocol{
         }
     }
     
-    
+    func isFavorited(id: Int, completion: @escaping (Bool) -> Void) {
+        let context = persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<Game> = Game.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", id)
+        
+        do {
+            let games = try context.fetch(fetchRequest)
+            if games.first != nil {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        } catch {
+            completion(false)
+        }
+    }
 }
 

@@ -8,8 +8,8 @@
 import Foundation
 
 protocol FavoriteViewModelDelegate: AnyObject{
-    func reloadData()
-    func showError(_ error: String)
+    func reloadFavData()
+    func showFavError(_ error: String)
 }
 
 protocol FavoriteViewModelProtocol{
@@ -24,7 +24,6 @@ final class FavoriteViewModel{
     
     let service: LocalServiceProtocol
     var savedGames: [Game] = []
-
     weak var delegate: FavoriteViewModelDelegate?
     init(service: LocalServiceProtocol) {
         self.service = service
@@ -35,12 +34,36 @@ final class FavoriteViewModel{
             switch result{
             case .success(let games):
                 self.savedGames = games
-                self.delegate?.reloadData()
+                self.delegate?.reloadFavData()
             case .failure(let error):
-                self.delegate?.showError(error.localizedDescription)
+                self.delegate?.showFavError(error.localizedDescription)
             }
         }
     }
+    
+    /*fileprivate func saveGame(gameModel: GameLocalModel){
+        service.saveGame(gameModel: gameModel) { result in
+            switch result{
+            case .success(let game):
+                self.isFavorited = true
+                self.delegate?.reloadFavData()
+            case .failure(let error):
+                self.delegate?.showFavError(error.localizedDescription)
+            }
+        }
+    }
+    
+    fileprivate func deleteGame(id: Int){
+        service.deleteGame(id: id) { result in
+            switch result{
+            case .success(): 
+                self.isFavorited = false
+                self.delegate?.reloadFavData()
+            case .failure(let error):
+                self.delegate?.showFavError(error.localizedDescription)
+            }
+        }
+    }*/
     
 }
 
@@ -58,5 +81,5 @@ extension FavoriteViewModel: FavoriteViewModelProtocol{
         print("Girdi")
         fetchSavedGames()
     }
-
+    
 }
