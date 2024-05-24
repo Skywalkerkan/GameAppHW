@@ -205,6 +205,11 @@ class DetailViewController: UIViewController {
         return imageView
     }()
     
+    lazy var starButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(starButtonTapped))
+        return button
+    }()
+        
     var viewModel: DetailViewModelProtocol!{
         didSet{
             viewModel.delegate = self
@@ -218,9 +223,25 @@ class DetailViewController: UIViewController {
     var currentIndexPath: IndexPath = IndexPath(item: 0, section: 0)
     var selectedIndexPath: IndexPath?
     var previousIndexPath: IndexPath?
+    var isStarred = false
+    
+    @objc func starButtonTapped() {
+        
+        if isStarred{
+            starButton.image = UIImage(systemName: "star")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(.white)
+        }else{
+            starButton.image = UIImage(systemName: "star.fill")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(Colors.blueColor)
+        }
+        isStarred.toggle()
+      }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.rightBarButtonItem = starButton
         viewModel.load(id: id)
         setupViews()
         let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
@@ -648,7 +669,6 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     }
     
     func reloadData() {
-    
         if let gameDetails = viewModel.gameDetails, 
             let screenShots = viewModel.screenShots,
            let trailer = viewModel.trailers{

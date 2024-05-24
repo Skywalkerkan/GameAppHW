@@ -22,7 +22,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let firstVC = HomeViewController()
         let gameViewModel = HomeViewModel(service: GameService())
         firstVC.viewModel = gameViewModel
-        let secondVC = DetailViewController()
+        let secondVC = FavoriteViewController()
+        let favoriteViewmodel = FavoriteViewModel(service: LocalService())
+        secondVC.viewModel = favoriteViewmodel
         
         let navigationBarAppearence = UINavigationBarAppearance()
         navigationBarAppearence.configureWithOpaqueBackground()

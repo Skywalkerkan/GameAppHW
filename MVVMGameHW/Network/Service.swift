@@ -15,10 +15,7 @@ protocol GameServiceProtocol{
 }
 
 class GameService: GameServiceProtocol{
-   
-    
-    static let shared = GameService()
-    
+       
     func fetchListOfGames(nextPage: String?, completion: @escaping (Swift.Result<GameResult, NetworkError>) -> Void) {
         
         var urlString = ""
