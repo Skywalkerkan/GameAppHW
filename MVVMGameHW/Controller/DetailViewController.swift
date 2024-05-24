@@ -450,6 +450,7 @@ class DetailViewController: UIViewController {
         }
         return text
     }
+    
     var totalWidth: CGFloat = 0
     func isExceedingScreenWidth() -> Int? {
         let screenWidth = UIScreen.main.bounds.width
@@ -477,8 +478,7 @@ class DetailViewController: UIViewController {
             print("Invalid URL")
             return
         }
-        print(urlString)
-        //sublayerın çıkarılması her defasında eklenmemesi için bu lazım
+
         outerView.layer.sublayers?.forEach { layer in
              if layer is AVPlayerLayer {
                  layer.removeFromSuperlayer()
@@ -487,9 +487,9 @@ class DetailViewController: UIViewController {
         
         player = AVPlayer(url: videoURL)
         playerLayer = AVPlayerLayer(player: player)
-        playerLayer?.videoGravity = .resize
+        playerLayer?.videoGravity = .resizeAspectFill
         playerLayer?.backgroundColor = UIColor.black.cgColor
-        playerLayer?.frame = CGRect(x: 8, y: 0, width: view.frame.width-16, height: view.frame.height*0.25)
+        playerLayer?.frame = CGRect(x: 8, y: 0, width: view.frame.width-16, height: 200)
         guard let playerLayer = playerLayer else{return}
         outerView.layer.addSublayer(playerLayer)
         player?.play()
@@ -525,6 +525,7 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
                 }
             }
             return cell
+
         case screenShotsCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ScreenCell.identifier, for: indexPath) as! ScreenCell
 
@@ -532,8 +533,10 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
                 switch mediaItem{
                 case .screenshot(let screenShot):
                     cell.configure(imageString: screenShot.image)
+                    cell.videoImageView.isHidden = true
                 case .trailer(let trailer):
                     cell.configure(imageString: trailer.preview)
+                    cell.videoImageView.isHidden = false
                 }
                 if indexPath == selectedIndexPath{
                     cell.backView.layer.borderColor = UIColor.white.cgColor
@@ -621,12 +624,20 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
         UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
     }
     
-    
-    
 }
 
 
 extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
+    
+    func showError(_ error: String) {
+        hideLodingView()
+        let alertController = UIAlertController(title: "Alert", message: error, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Try Again", style: .cancel) { _ in
+            self.viewModel.load(id: self.id)
+        }
+        alertController.addAction(okAction)
+        present(alertController, animated: true)
+    }
     
     func showLoadingView() {
         showLoading()

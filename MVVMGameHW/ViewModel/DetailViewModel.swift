@@ -11,6 +11,7 @@ protocol DetailViewModelDelegate: AnyObject {
     func showLoadingView()
     func hideLodingView()
     func reloadData()
+    func showError(_ error: String)
 }
 
 protocol DetailViewModelProtocol{
@@ -159,6 +160,7 @@ extension DetailViewModel: DetailViewModelProtocol{
         dispatchGroup.notify(queue: .main) {
             if let error = fetchError {
                 print("Error: \(error.localizedDescription)")
+                self.delegate?.showError(error.localizedDescription)
                 return
             }
             DispatchQueue.main.async {

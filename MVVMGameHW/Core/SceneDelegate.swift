@@ -19,17 +19,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         
         let tabBarController = UITabBarController()
-        let firstVC = HomeViewController() // FirstViewController nesnesini doğrudan oluşturun
+        let firstVC = HomeViewController()
         let gameViewModel = HomeViewModel(service: GameService())
         firstVC.viewModel = gameViewModel
         let secondVC = DetailViewController()
         
-        
+        let navigationBarAppearence = UINavigationBarAppearance()
+        navigationBarAppearence.configureWithOpaqueBackground()
+        navigationBarAppearence.backgroundColor = Colors.backgroundColor
+            UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearence
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearence
         let firstNavigationController = UINavigationController(rootViewController: firstVC)
         let secondNavigationController = UINavigationController(rootViewController: secondVC)
-        
-        firstNavigationController.navigationBar.barTintColor = UIColor.clear
         firstNavigationController.navigationBar.isTranslucent = false
+        secondNavigationController.navigationBar.isTranslucent = false
+
         
         firstNavigationController.tabBarItem = UITabBarItem(title: "First", image: UIImage(named: "first"), tag: 0)
         secondNavigationController.tabBarItem = UITabBarItem(title: "Second", image: UIImage(named: "second"), tag: 1)

@@ -34,6 +34,15 @@ class ScreenCell: UICollectionViewCell {
         return imageView
     }()
     
+    let videoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "arrowtriangle.forward.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.darkGray)
+        imageView.backgroundColor = .black
+        imageView.isHidden = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     
@@ -55,6 +64,11 @@ class ScreenCell: UICollectionViewCell {
         gameImageView.trailingAnchor.constraint(equalTo: backView.trailingAnchor).isActive = true
         gameImageView.bottomAnchor.constraint(equalTo: backView.bottomAnchor).isActive = true
         
+        backView.addSubview(videoImageView)
+        videoImageView.centerXAnchor.constraint(equalTo: backView.centerXAnchor).isActive = true
+        videoImageView.centerYAnchor.constraint(equalTo: backView.centerYAnchor).isActive = true
+        videoImageView.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        videoImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
     }
     
     
