@@ -95,7 +95,7 @@ class SavedGameCell: UICollectionViewCell {
             genresLabel.text = genres
             
             let platforms = platformsString.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            print(platforms)
+            platformImages.removeAll()
             for platform in platforms {
                 switch platform {
                 case "PC":
@@ -113,7 +113,10 @@ class SavedGameCell: UICollectionViewCell {
                 default:
                     break
                 }
-                print(platformImages.count)
+            }
+            
+            DispatchQueue.main.async {
+                self.platformCollectionView.reloadData()
             }
         }
     }

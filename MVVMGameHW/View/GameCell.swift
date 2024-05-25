@@ -86,7 +86,8 @@ class GameCell: UICollectionViewCell {
         genresLabel.text = genresText
 
         guard let platforms = gameResult.parentPlatforms else { return }
-
+        
+        platformImages.removeAll()
         platforms.forEach { platform in
             guard let platformName = platform.platform?.name else { return }
             switch platformName {
@@ -106,8 +107,9 @@ class GameCell: UICollectionViewCell {
                     break
             }
         }
-        print(platformImages.count)
-        
+        DispatchQueue.main.async {
+            self.platformCollectionView.reloadData()
+        }
     }
     
     func setupCollectionView(){

@@ -54,8 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
         let cache = SDImageCache.shared
 
-        cache.config.maxMemoryCost = 100 * 256 * 256
-        cache.config.maxDiskSize = 300 * 1024 * 1024
+         cache.config.maxMemoryCost = 500 * 1024 * 1024
         //cache.config.maxDiskAge = 7 * 24 * 60 * 60
         
     }

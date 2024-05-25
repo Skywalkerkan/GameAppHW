@@ -29,7 +29,7 @@ class LocalService: LocalServiceProtocol{
     func saveGame(gameModel: GameLocalModel, completion: @escaping (Swift.Result<Game, LocalError>) -> Void) {
         let context = persistentContainer.viewContext
         let game = Game(context: context)
-        game.id = Int16(gameModel.gameId)
+        game.id = Int32(gameModel.gameId)
         game.name = gameModel.name
         game.genres = gameModel.genres
         game.image = gameModel.imageData
