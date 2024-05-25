@@ -24,7 +24,6 @@ struct GameDetail: Decodable {
     let ratings: [Rating]?
     let reactions: [String: Int]?
     let added: Int?
-    let addedByStatus: AddedByStatus?
     let playtime, screenshotsCount, moviesCount, creatorsCount: Int?
     let achievementsCount, parentAchievementsCount: Int?
     let redditURL: String?
@@ -54,7 +53,6 @@ struct GameDetail: Decodable {
         case website, rating
         case ratingTop = "rating_top"
         case ratings, reactions, added
-        case addedByStatus = "added_by_status"
         case playtime
         case screenshotsCount = "screenshots_count"
         case moviesCount = "movies_count"

@@ -17,7 +17,9 @@ protocol HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate? { get set }
     var numberOfItems: Int { get }
     func load(nextPage: String?)
+    func search(searchText: String?)
     func game(indexPath: IndexPath) -> Result?
+    var allSearchGames: [Result]? { get}
     var nextPage: String? { get set}
 }
 
@@ -25,6 +27,7 @@ final class HomeViewModel{
     
     let service: GameServiceProtocol
     var games = [Result]()
+    var searchGames = [Result]()
     var nextPage: String?
     weak var delegate: HomeViewModelDelegate?
     
@@ -48,13 +51,39 @@ final class HomeViewModel{
             }
         }
     }
+    
+    fileprivate func fetchSearchGames(searchText: String?){
+        self.delegate?.showLoadingView()
+        service.fetchSearchGames(searchString: searchText ?? " ") {  [weak self] result in
+            switch result{
+            case .success(let gameResult):
+                DispatchQueue.main.async{
+                    self?.delegate?.hideLoadingView()
+                    self?.searchGames = gameResult.results ?? []
+                    self?.delegate?.reloadData()
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
 }
 
 extension HomeViewModel: HomeViewModelProtocol{
+    
+    var allSearchGames: [Result]? {
+        searchGames
+    }
+    
      
     func load(nextPage: String?) {
         fetchGames(nextPage: nextPage)
     }
+    
+    func search(searchText: String?){
+        fetchSearchGames(searchText: searchText)
+    }
+
     
     func game(indexPath: IndexPath) -> Result? {
         games[indexPath.row]

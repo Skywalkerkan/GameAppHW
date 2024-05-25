@@ -48,20 +48,14 @@ struct Result: Decodable {
     let rating: Double?
     let ratingTop: Int?
     let ratings: [Rating]?
-    let ratingsCount, reviewsTextCount, added: Int?
-    let addedByStatus: AddedByStatus?
+    let ratingsCount, reviewsTextCount: Int?
     let metacritic, playtime, suggestionsCount: Int?
-    let updated: String?
-    let userGame: String?
     let reviewsCount: Int?
-    let saturatedColor, dominantColor: Color?
     let platforms: [PlatformElement]?
     let parentPlatforms: [ParentPlatform]?
     let genres: [Genre]?
-    let clip: String?
     let tags: [Genre]?
     let esrbRating: EsrbRating?
-    let shortScreenshots: [ShortScreenshot]?
 
     enum CodingKeys: String, CodingKey {
         case id, slug, name, released, tba
@@ -71,33 +65,16 @@ struct Result: Decodable {
         case ratings
         case ratingsCount = "ratings_count"
         case reviewsTextCount = "reviews_text_count"
-        case added
-        case addedByStatus = "added_by_status"
         case metacritic, playtime
         case suggestionsCount = "suggestions_count"
-        case updated
-        case userGame = "user_game"
         case reviewsCount = "reviews_count"
-        case saturatedColor = "saturated_color"
-        case dominantColor = "dominant_color"
         case platforms
         case parentPlatforms = "parent_platforms"
-        case genres, clip, tags
+        case genres, tags
         case esrbRating = "esrb_rating"
-        case shortScreenshots = "short_screenshots"
     }
 }
-
-// MARK: - AddedByStatus
-struct AddedByStatus: Decodable {
-    let yet, owned, beaten, toplay: Int?
-    let dropped, playing: Int?
-}
-
-enum Color: String, Decodable {
-    case the0F0F0F = "0f0f0f"
-}
-
+ 
 // MARK: - EsrbRating
 struct EsrbRating: Decodable {
     let id: Int?
@@ -108,16 +85,9 @@ struct EsrbRating: Decodable {
 struct Genre: Decodable {
     let id: Int?
     let name, slug: String?
-    let gamesCount: Int?
-    let imageBackground: String?
-    let domain: Domain?
-    let language: Language?
 
     enum CodingKeys: String, CodingKey {
         case id, name, slug
-        case gamesCount = "games_count"
-        case imageBackground = "image_background"
-        case domain, language
     }
 }
 
@@ -191,12 +161,3 @@ enum Title: String, Codable {
     case recommended = "recommended"
     case skip = "skip"
 }
-
-// MARK: - ShortScreenshot
-struct ShortScreenshot: Decodable {
-    let id: Int?
-    let image: String?
-}
-
-
-
