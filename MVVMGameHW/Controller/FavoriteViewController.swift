@@ -21,6 +21,16 @@ class FavoriteViewController: UIViewController{
         return cw
     }()
     
+    let noDataFoundLabel: UILabel = {
+       let label = UILabel()
+        label.text = "No Data Found"
+        label.isHidden = true
+        label.textAlignment = .center
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     let navigationView: UIView = {
      let view = UIView()
         view.backgroundColor = .clear
@@ -64,6 +74,11 @@ class FavoriteViewController: UIViewController{
         gameCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        view.addSubview(noDataFoundLabel)
+        noDataFoundLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        noDataFoundLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        noDataFoundLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
     private func setupViews(){
@@ -75,7 +90,7 @@ class FavoriteViewController: UIViewController{
         navigationView.addSubview(titleLabel)
         titleLabel.centerYAnchor.constraint(equalTo: navigationView.centerYAnchor).isActive = true
         titleLabel.centerXAnchor.constraint(equalTo: navigationView.centerXAnchor).isActive = true
-
+        
     }
     
 }
@@ -119,6 +134,11 @@ extension FavoriteViewController: FavoriteViewModelDelegate{
     func reloadFavData() {
         DispatchQueue.main.async {
             self.gameCollectionView.reloadData()
+            if self.viewModel.numberOfItems == 0{
+                self.noDataFoundLabel.isHidden = false
+            }else{
+                self.noDataFoundLabel.isHidden = true
+            }
         }
     }
     
