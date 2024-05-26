@@ -40,33 +40,7 @@ final class FavoriteViewModel{
             }
         }
     }
-    
-    /*fileprivate func saveGame(gameModel: GameLocalModel){
-        service.saveGame(gameModel: gameModel) { result in
-            switch result{
-            case .success(let game):
-                self.isFavorited = true
-                self.delegate?.reloadFavData()
-            case .failure(let error):
-                self.delegate?.showFavError(error.localizedDescription)
-            }
-        }
-    }
-    
-    fileprivate func deleteGame(id: Int){
-        service.deleteGame(id: id) { result in
-            switch result{
-            case .success(): 
-                self.isFavorited = false
-                self.delegate?.reloadFavData()
-            case .failure(let error):
-                self.delegate?.showFavError(error.localizedDescription)
-            }
-        }
-    }*/
-    
 }
-
 
 extension FavoriteViewModel: FavoriteViewModelProtocol{
     var numberOfItems: Int {

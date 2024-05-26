@@ -41,20 +41,16 @@ class LoadingView{
         blurView.frame = UIWindow(frame: UIScreen.main.bounds).frame
         activityIndicator.center = blurView.center
         blurView.contentView.addSubview(activityIndicator)
-       /* backGroundView.frame = UIWindow(frame: UIScreen.main.bounds).frame
-        activityIndicator.center = backGroundView.center
-        backGroundView.addSubview(activityIndicator)*/
+
     }
     
     func startLoading(){
         UIApplication.shared.windows.first?.addSubview(blurView)
-       // UIApplication.shared.windows.first?.addSubview(backGroundView)
         activityIndicator.startAnimating()
     }
     
     func hideLoading() {
         activityIndicator.stopAnimating()
         blurView.removeFromSuperview()
-       // backGroundView.removeFromSuperview()
     }
 }

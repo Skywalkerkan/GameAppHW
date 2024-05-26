@@ -8,8 +8,6 @@
 import Foundation
 
 protocol DetailFavViewModelDelegate: AnyObject{
-   /* func deleteGame()
-    func saveGame()*/
     func isSaved()
     func isStarredFunc()
     func showDetailFavError(error: Error)

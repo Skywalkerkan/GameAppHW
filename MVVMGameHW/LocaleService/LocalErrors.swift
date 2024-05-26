@@ -15,5 +15,4 @@ enum LocalError: Error{
     case saveError(_ Error: Error)
     case notFoundError
 
-    
 }

@@ -46,7 +46,5 @@ class BestGameCell: UICollectionViewCell {
         }
         
     }
-        
-       
     
 }

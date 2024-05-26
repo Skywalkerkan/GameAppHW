@@ -37,6 +37,4 @@ class FooterReusableView: UICollectionReusableView {
         activityIndicator.heightAnchor.constraint(equalToConstant: 60).isActive = true
 
     }
-    
-    
 }
