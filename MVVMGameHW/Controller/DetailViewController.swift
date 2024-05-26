@@ -358,6 +358,7 @@ class DetailViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
+        player?.play()
         favViewModel.isFavorited(id: id)
     }
 
@@ -373,6 +374,10 @@ class DetailViewController: UIViewController {
     }
         
     deinit {
+        player?.pause()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
         player?.pause()
     }
     
