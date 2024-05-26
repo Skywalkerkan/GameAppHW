@@ -38,8 +38,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         secondNavigationController.navigationBar.isTranslucent = false
 
         
-        firstNavigationController.tabBarItem = UITabBarItem(title: "First", image: UIImage(named: "first"), tag: 0)
-        secondNavigationController.tabBarItem = UITabBarItem(title: "Second", image: UIImage(named: "second"), tag: 1)
+        firstNavigationController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(named: "first"), tag: 0)
+        secondNavigationController.tabBarItem = UITabBarItem(title: "Favorites", image: UIImage(named: "second"), tag: 1)
         
         tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
         let tabBarAppearance = UITabBarAppearance()

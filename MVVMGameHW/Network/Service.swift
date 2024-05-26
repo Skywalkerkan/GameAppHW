@@ -13,6 +13,8 @@ protocol GameServiceProtocol {
     func fetchScreenShots(id: Int, completion: @escaping (Swift.Result<ScreenShot, NetworkError>) -> Void)
     func fetchTrailers(id: Int, completion: @escaping (Swift.Result<Trailer, NetworkError>) -> Void)
     func fetchSearchGames(searchString: String, completion: @escaping (Swift.Result<Search, NetworkError>) -> Void)
+    func fetchRedditComment(id: Int, completion: @escaping (Swift.Result<RedditResponse, NetworkError>) -> Void)
+
 }
 
 class GameService: GameServiceProtocol {
@@ -115,4 +117,19 @@ class GameService: GameServiceProtocol {
         print(url)
         performRequest(url: url, completion: completion)
     }
+    
+    func fetchRedditComment(id: Int, completion: @escaping (Swift.Result<RedditResponse, NetworkError>) -> Void){
+        var components = URLComponents(string: APIConstants.baseURL)!
+        components.path.append("/\(id)/reddit")
+        components.queryItems = [URLQueryItem(name: "key", value: APIConstants.apiKey)]
+        
+        guard let url = components.url else {
+            completion(.failure(.invalidURL(components.string ?? "")))
+            return
+        }
+        
+        performRequest(url: url, completion: completion)
+    }
+
+    
 }

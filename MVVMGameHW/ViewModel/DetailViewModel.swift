@@ -21,6 +21,7 @@ protocol DetailViewModelProtocol{
     var screenShots: ScreenShot? { get }
     var trailers: Trailer? { get }
     var mediaItems: [MediaItem]? { get }
+    var redditPosts: [RedditPost]? { get }
 }
 
 enum MediaItem {
@@ -35,6 +36,7 @@ final class DetailViewModel{
     var screenShot: ScreenShot?
     var mediaItem: [MediaItem]?
     var trailer: Trailer?
+    var comments: RedditResponse?
     weak var delegate: DetailViewModelDelegate?
     
     init(service: GameServiceProtocol) {
@@ -113,12 +115,26 @@ final class DetailViewModel{
         }
     }
     
+    fileprivate func fetchRedditComments(id: Int, completion: @escaping (Swift.Result<Void, Error>) -> Void){
+        service.fetchRedditComment(id: id) { [weak self] result in
+            switch result{
+            case .success(let redditResponse):
+                self?.comments = redditResponse
+                completion(.success(()))
+            case .failure(let error):
+                print(error.localizedDescription)
+                completion(.failure(error))
+            }
+
+        }
+        
+    }
+    
     
 }
 
 extension DetailViewModel: DetailViewModelProtocol{
     
-
    /* func load(id: Int?) {
         guard let id = id else{return}
         fetchSingleGame(id: id)
@@ -157,6 +173,14 @@ extension DetailViewModel: DetailViewModelProtocol{
             dispatchGroup.leave()
         }
         
+        dispatchGroup.enter()
+        fetchRedditComments(id: id) { result in
+            if case .failure(let error) = result {
+                fetchError = error
+            }
+            dispatchGroup.leave()
+        }
+        
         dispatchGroup.notify(queue: .main) {
             if let error = fetchError {
                 print("Error: \(error.localizedDescription)")
@@ -169,7 +193,12 @@ extension DetailViewModel: DetailViewModelProtocol{
             self.delegate?.reloadData()
         }
     }
-
+    
+    
+    var redditPosts: [RedditPost]? {
+        return comments?.results
+    }
+    
     var gameDetails: GameDetail?{
         return gameDetail
     }

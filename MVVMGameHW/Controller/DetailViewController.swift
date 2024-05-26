@@ -8,6 +8,7 @@
 import UIKit
 import SDWebImage
 import AVFoundation
+import SafariServices
 
 class DetailViewController: UIViewController {
     
@@ -29,6 +30,7 @@ class DetailViewController: UIViewController {
     }()
     
     @objc private func backClicked(){
+        player?.pause()
         navigationController?.popViewController(animated: true)
     }
     
@@ -53,9 +55,22 @@ class DetailViewController: UIViewController {
         return collectionView
     }()
     
+    let redditCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.bounces = false
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.isScrollEnabled = false
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
+    
+    
     let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-       // scrollView.contentInsetAdjustmentBehavior = .never
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
@@ -68,15 +83,6 @@ class DetailViewController: UIViewController {
         return view
     }()
     
-    let backGroundView: UIView = {
-        let view = UIView()
-        view.isUserInteractionEnabled = true
-        view.backgroundColor = Colors.secondBackgroundColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    //Buradan sonrası
     let gameImageView: UIImageView = {
        let imageView = UIImageView()
         imageView.backgroundColor = Colors.cellColor
@@ -88,17 +94,12 @@ class DetailViewController: UIViewController {
         return imageView
     }()
     
-    let cellBackground: UIView = {
-       let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     let nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.textAlignment = .left
-        label.numberOfLines = 0
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.6
         label.font = .boldSystemFont(ofSize: 20)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -148,7 +149,7 @@ class DetailViewController: UIViewController {
     
     let releaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .lightGray
+        label.textColor = Colors.darkGray
         label.text = "Released"
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -166,6 +167,23 @@ class DetailViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    
+    lazy var viewMoreButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("- - - View More - - -", for: .normal)
+        button.setTitleColor(Colors.blueColor, for: .normal)
+        button.addTarget(self, action: #selector(viewMoreClicked), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc private func viewMoreClicked(){
+        player?.pause()
+        if let urlString = viewModel.gameDetails?.redditURL, let url = URL(string: urlString){
+            openSafariViewController(with: url)
+        }
+    }
     
     let leftVerticalStackView: UIStackView = {
         let stackView = UIStackView()
@@ -211,8 +229,18 @@ class DetailViewController: UIViewController {
         label.textColor = Colors.darkGray
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.isUserInteractionEnabled = true
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let commentLabel: UILabel = {
+        let label = UILabel()
+        label.text = "COMMENTS"
+        label.textColor = Colors.darkGray
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -303,34 +331,9 @@ class DetailViewController: UIViewController {
         descriptonLabel.addGestureRecognizer(labelTapGesture)
         setupTagCollectionView()
         setupScreenCollectionView()
-        
-      //  timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(updateIndexPath), userInfo: nil, repeats: true)
-
+        setupRedditCollectionView()
     }
-    
-    @objc func updateIndexPath() {
-         if let previousIndexPath = selectedIndexPath,
-            let previousCell = screenShotsCollectionView.cellForItem(at: previousIndexPath) as? ScreenCell {
-             previousCell.backView.layer.borderColor = UIColor.clear.cgColor
-             previousCell.backView.layer.borderWidth = 0
-             previousCell.arrowImageView.isHidden = true
-         }
-         let numberOfItems = screenShotsCollectionView.numberOfItems(inSection: 0)
-         let nextItem = (currentIndexPath.item + 1) % numberOfItems
-         currentIndexPath = IndexPath(item: nextItem, section: 0)
-
-         if let cell = screenShotsCollectionView.cellForItem(at: currentIndexPath) as? ScreenCell {
-             cell.backView.layer.borderColor = UIColor.white.cgColor
-             cell.backView.layer.borderWidth = 3
-             cell.arrowImageView.isHidden = false
-             DispatchQueue.main.async {
-                 self.screenImageView.image = cell.gameImageView.image
-             }
-             screenShotsCollectionView.scrollToItem(at: currentIndexPath, at: .centeredHorizontally, animated: true)
-             selectedIndexPath = currentIndexPath
-         }
-     }
-    
+        
     deinit {
             timer?.invalidate()
             player?.pause()
@@ -365,6 +368,12 @@ class DetailViewController: UIViewController {
         screenShotsCollectionView.register(ScreenCell.self, forCellWithReuseIdentifier: ScreenCell.identifier)
     }
     
+    private func setupRedditCollectionView(){
+        redditCollectionView.delegate = self
+        redditCollectionView.dataSource = self
+        redditCollectionView.register(RedditCell.self, forCellWithReuseIdentifier: RedditCell.identifier)
+    }
+    
     let infoStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
@@ -388,7 +397,7 @@ class DetailViewController: UIViewController {
     
     private func setupViews(){
         view.backgroundColor = Colors.secondBackgroundColor
-        
+
         view.addSubview(navigationView)
         navigationView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         navigationView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
@@ -423,7 +432,20 @@ class DetailViewController: UIViewController {
         
         scrollStackViewContainer.addArrangedSubview(gameImageView)
         gameImageView.heightAnchor.constraint(equalToConstant: view.frame.height*0.25).isActive = true
-        
+        scrollStackViewContainer.setCustomSpacing(12, after: gameImageView)
+
+        let nameWrapper = UIView()
+        nameWrapper.addSubview(nameLabel)
+        NSLayoutConstraint.activate([
+            nameLabel.leadingAnchor.constraint(equalTo: nameWrapper.leadingAnchor, constant: 8),
+            nameLabel.trailingAnchor.constraint(equalTo: nameWrapper.trailingAnchor, constant: -8),
+            nameLabel.topAnchor.constraint(equalTo: nameWrapper.topAnchor),
+            nameLabel.bottomAnchor.constraint(equalTo: nameWrapper.bottomAnchor)
+        ])
+
+        scrollStackViewContainer.addArrangedSubview(nameWrapper)
+        scrollStackViewContainer.setCustomSpacing(8, after: nameWrapper)
+
         scrollStackViewContainer.addArrangedSubview(infoView)
         
         infoView.heightAnchor.constraint(equalToConstant: 60).isActive = true
@@ -451,7 +473,8 @@ class DetailViewController: UIViewController {
         ])
 
         scrollStackViewContainer.addArrangedSubview(descriptionWrapper)
-        
+        scrollStackViewContainer.setCustomSpacing(16, after: descriptionWrapper)
+
         let tagWrapper = UIView()
         tagWrapper.addSubview(tagsLabel)
         NSLayoutConstraint.activate([
@@ -461,12 +484,11 @@ class DetailViewController: UIViewController {
             tagsLabel.bottomAnchor.constraint(equalTo: tagWrapper.bottomAnchor)
         ])
         scrollStackViewContainer.addArrangedSubview(tagWrapper)
-    
-        scrollStackViewContainer.addArrangedSubview(tagCollectionView)
-        tagCollectionView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
+        scrollStackViewContainer.setCustomSpacing(2, after: tagWrapper)
 
-       // let screenImageViewWrapper = UIView()
+        scrollStackViewContainer.addArrangedSubview(tagCollectionView)
+        tagCollectionView.heightAnchor.constraint(equalToConstant: 35).isActive = true
+
         screenImageViewWrapper.addSubview(screenImageView)
         NSLayoutConstraint.activate([
             screenImageView.leadingAnchor.constraint(equalTo: screenImageViewWrapper.leadingAnchor, constant: 8),
@@ -480,6 +502,22 @@ class DetailViewController: UIViewController {
         scrollStackViewContainer.addArrangedSubview(screenShotsCollectionView)
         scrollStackViewContainer.setCustomSpacing(-12, after: screenImageViewWrapper)
         screenShotsCollectionView.heightAnchor.constraint(equalToConstant: 90).isActive = true
+        
+        scrollStackViewContainer.setCustomSpacing(20, after: screenShotsCollectionView)
+        let commentsWrapper = UIView()
+        commentsWrapper.addSubview(commentLabel)
+        NSLayoutConstraint.activate([
+            commentLabel.leadingAnchor.constraint(equalTo: commentsWrapper.leadingAnchor, constant: 8), // Sol boşluk
+            commentLabel.trailingAnchor.constraint(equalTo: commentsWrapper.trailingAnchor, constant: -8),
+            commentLabel.topAnchor.constraint(equalTo: commentsWrapper.topAnchor),
+            commentLabel.bottomAnchor.constraint(equalTo: commentsWrapper.bottomAnchor)
+        ])
+        scrollStackViewContainer.addArrangedSubview(commentsWrapper)
+        
+        scrollStackViewContainer.addArrangedSubview(redditCollectionView)
+        
+        scrollStackViewContainer.addArrangedSubview(viewMoreButton)
+        viewMoreButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
     }
     
@@ -516,6 +554,12 @@ class DetailViewController: UIViewController {
         
     }
     
+    func openSafariViewController(with url: URL) {
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.delegate = self
+        present(safariVC, animated: true, completion: nil)
+    }
+    
     func extractFirstTwoSentences(from text: String) -> String {
         var sentenceCount = 0
         var endIndex = text.startIndex
@@ -542,24 +586,6 @@ class DetailViewController: UIViewController {
     }
     
     var totalWidth: CGFloat = 0
-    func isExceedingScreenWidth() -> Int? {
-        let screenWidth = UIScreen.main.bounds.width
-        guard let tags = viewModel.gameDetails?.tags else{return nil}
-        for i in 0...tags.count-1 {
-            guard let text = viewModel.gameDetails?.tags?[i].name else{return 5}
-              let width = (text.size(withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .semibold)]).width) + 20  // Padding değeri 12 sol 12 sağ 6 arası
-              totalWidth += width
-              if totalWidth > screenWidth{
-                  if i == 2{
-                      continue
-                  }else{
-                      return i
-                  }
-              }
-          }
-            return 5
-        }
-    
     var maxCount = 3
     
     func setupVideoPlayer(in outerView: UIView, urlString: String?) {
@@ -596,6 +622,8 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
             return min(itemCount, 3)
         case screenShotsCollectionView:
             return viewModel.mediaItems?.count ?? 0
+        case redditCollectionView:
+            return viewModel.redditPosts?.count ?? 0
         default:
             return 0
         }
@@ -640,6 +668,10 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
             }
             
             return cell
+        case redditCollectionView:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RedditCell.identifier, for: indexPath) as! RedditCell
+            cell.configure(redditDetail: viewModel.redditPosts?[indexPath.row])
+            return cell
         default:
             return UICollectionViewCell()
         }
@@ -650,18 +682,23 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
         switch collectionView{
         case screenShotsCollectionView:
             return CGSize(width: 120, height: 90)
-        default:
+        case tagCollectionView:
             return CGSize(width: tagCollectionView.frame.width, height: tagCollectionView.frame.height)
+        case redditCollectionView:
+            return CGSize(width: view.frame.width, height: 80)
+        default:
+            return CGSize()
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
+        switch collectionView{
+        case screenShotsCollectionView:
             deselectCell(at: previousIndexPath)
             selectCell(at: indexPath)
             selectedIndexPath = indexPath
             previousIndexPath = selectedIndexPath
-        
         if let media = viewModel.mediaItems?[indexPath.row] {
             switch media {
             case .trailer(let trailer):
@@ -676,6 +713,19 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
                 removeVideoPlayer()
             }
         }
+        case tagCollectionView:
+            let cell = tagCollectionView.cellForItem(at: indexPath) as! TagCell
+            if cell.tagLabel.text == "+"{
+                print("ok")
+            }
+        case redditCollectionView:
+            if let urlString = viewModel.redditPosts?[indexPath.row].url, let url = URL(string: urlString){
+                openSafariViewController(with: url)
+            }
+        default:
+            break
+        }
+
     }
 
     func deselectCell(at indexPath: IndexPath?) {
@@ -740,15 +790,26 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     func reloadData() {
         if let gameDetails = viewModel.gameDetails, 
             let screenShots = viewModel.screenShots,
-           let trailer = viewModel.trailers{
+           let trailers = viewModel.trailers,
+           let redditComments = viewModel.redditPosts{
+            print(redditComments.count)
             DispatchQueue.main.async {
                 self.configure(gameDetail: gameDetails, screenShots: screenShots)
                 self.tagCollectionView.reloadData()
                 self.screenShotsCollectionView.reloadData()
+                self.redditCollectionView.reloadData()
+                if trailers.results?.count ?? 0 > 0{
+                    self.setupVideoPlayer(in: self.screenImageViewWrapper, urlString: trailers.results?.first?.data?.the480)
+                    self.selectedIndexPath = [0,0]
+
+                }else if screenShots.results?.count ?? 0 > 0{
+                    self.selectedIndexPath = [0,0]
+                }
+                self.redditCollectionView.heightAnchor.constraint(equalToConstant: CGFloat(redditComments.count*86)).isActive = true
             }
+
         }
     }
-    
     
 }
 
@@ -782,5 +843,11 @@ extension DetailViewController: DetailFavViewModelDelegate{
     func showDetailFavError() {
         print("sildi")
 
+    }
+}
+
+extension DetailViewController: SFSafariViewControllerDelegate {
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        controller.dismiss(animated: true, completion: nil)
     }
 }

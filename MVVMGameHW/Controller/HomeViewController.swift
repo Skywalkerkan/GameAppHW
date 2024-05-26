@@ -20,14 +20,14 @@ class HomeViewController: UIViewController {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.searchTextField.backgroundColor = UIColor(red: 45/255, green: 48/255, blue: 55/255, alpha: 1)
         searchBar.backgroundImage = UIImage()
-        searchBar.placeholder = "Megadrop"
+        searchBar.placeholder = "Search Your Game"
         searchBar.searchTextField.textColor = .white
         if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
               let attributes: [NSAttributedString.Key: Any] = [
                   .foregroundColor: UIColor.lightGray,
                   .font: UIFont.systemFont(ofSize: 17)
               ]
-              searchTextField.attributedPlaceholder = NSAttributedString(string: "Megadrop", attributes: attributes)
+              searchTextField.attributedPlaceholder = NSAttributedString(string: "Search Your Game", attributes: attributes)
           }
         searchBar.searchTextField.leftView?.tintColor = .gray
         searchBar.layer.zPosition = 2
@@ -36,7 +36,10 @@ class HomeViewController: UIViewController {
     
     let noDataFoundLabel: UILabel = {
        let label = UILabel()
-        label.text = "Hiç Veri yok"
+        label.text = "No Data Found"
+        label.isHidden = true
+        label.textAlignment = .center
+        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -104,6 +107,7 @@ class HomeViewController: UIViewController {
         searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBar.widthAnchor.constraint(equalToConstant: view.frame.size.width).isActive = true
         searchBar.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
 
         view.addSubview(gameCollectionView)
         gameCollectionView.delegate = self
@@ -113,7 +117,11 @@ class HomeViewController: UIViewController {
         gameCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-
+        
+        view.addSubview(noDataFoundLabel)
+        noDataFoundLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        noDataFoundLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        noDataFoundLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
     private func setupFooter(){
@@ -280,6 +288,11 @@ extension HomeViewController: HomeViewModelDelegate, LoadingIndicator{
     }
     
     func reloadData() {
+        if self.isSearching, let count = self.viewModel.allSearchGames?.count, count == 0 {
+            self.noDataFoundLabel.isHidden = false
+        } else {
+            self.noDataFoundLabel.isHidden = true
+        }
         DispatchQueue.main.async {
             self.gameCollectionView.reloadData()
         }
@@ -306,8 +319,8 @@ extension HomeViewController: UISearchBarDelegate {
                 }
             }else if searchText == ""{
                 print("Buraya giriyor")
-                viewModel.load(nextPage: nil)
                 isSearching = false
+                self.noDataFoundLabel.isHidden = true
                 DispatchQueue.main.async {
                     self.gameCollectionView.reloadData()
                 }
