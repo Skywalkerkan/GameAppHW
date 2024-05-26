@@ -36,10 +36,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let secondNavigationController = UINavigationController(rootViewController: secondVC)
         firstNavigationController.navigationBar.isTranslucent = false
         secondNavigationController.navigationBar.isTranslucent = false
-
         
-        firstNavigationController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(named: "first"), tag: 0)
-        secondNavigationController.tabBarItem = UITabBarItem(title: "Favorites", image: UIImage(named: "second"), tag: 1)
+        firstNavigationController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: UIImage(systemName: "house.fill"))
+        secondNavigationController.tabBarItem = UITabBarItem(title: "Favorites", image: UIImage(systemName: "star"), selectedImage: UIImage(systemName: "star.fill"))
         
         tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
         let tabBarAppearance = UITabBarAppearance()
@@ -53,10 +52,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window?.makeKeyAndVisible()
                 
         let cache = SDImageCache.shared
-
-         cache.config.maxMemoryCost = 500 * 1024 * 1024
-        //cache.config.maxDiskAge = 7 * 24 * 60 * 60
         
+         cache.config.maxMemoryCost = 500 * 256 * 256
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

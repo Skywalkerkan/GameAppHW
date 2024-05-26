@@ -8,11 +8,11 @@
 import Foundation
 
 protocol DetailFavViewModelDelegate: AnyObject{
-    func deleteGame()
-    func saveGame()
+   /* func deleteGame()
+    func saveGame()*/
     func isSaved()
     func isStarredFunc()
-    func showDetailFavError()
+    func showDetailFavError(error: Error)
 }
 
 protocol DetailFavViewModelProtocol{
@@ -36,11 +36,11 @@ final class DetailFavViewModel{
     fileprivate func saveGame(gameModel: GameLocalModel){
         service.saveGame(gameModel: gameModel) { result in
             switch result{
-            case .success(let game):
+            case .success(_):
                 self.isFavorited = true
-                self.delegate?.saveGame()
+                self.delegate?.isSaved()
             case .failure(let error):
-                self.delegate?.showDetailFavError()
+                self.delegate?.showDetailFavError(error: error)
             }
         }
     }
@@ -50,9 +50,9 @@ final class DetailFavViewModel{
             switch result{
             case .success():
                 self.isFavorited = false
-                self.delegate?.deleteGame()
+                self.delegate?.isSaved()
             case .failure(let error):
-                self.delegate?.showDetailFavError()
+                self.delegate?.showDetailFavError(error: error)
             }
         }
     }

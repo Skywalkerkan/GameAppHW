@@ -43,47 +43,15 @@ final class DetailViewModel{
         self.service = service
     }
     
-    /*fileprivate func fetchSingleGame(id: Int){
-        self.delegate?.showLoadingView()
-        service.fetchSingleGame(id: id) { [weak self] result in
-            switch result{
-            case .success(let detail):
-                DispatchQueue.main.async{
-                    self?.delegate?.hideLodingView()
-                }
-                self?.gameDetail = detail
-                self?.delegate?.reloadData()
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }
-    
-    fileprivate func fetchScreenShots(id: Int){
-        service.fetchScreenShots(id: id) { [weak self] result in
-            switch result{
-            case .success(let screenShots):
-                self?.screenShot = screenShots
-               // self?.delegate?.reloadData()
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }*/
-    
-    
     fileprivate func fetchSingleGame(id: Int, completion: @escaping (Swift.Result<Void, Error>) -> Void) {
         self.delegate?.showLoadingView()
         service.fetchSingleGame(id: id) { [weak self] result in
-          /*  DispatchQueue.main.async {
-                self?.delegate?.hideLodingView()
-            }*/
+
             switch result {
             case .success(let detail):
                 self?.gameDetail = detail
                 completion(.success(()))
             case .failure(let error):
-                print(error.localizedDescription)
                 completion(.failure(error))
             }
         }
@@ -96,7 +64,6 @@ final class DetailViewModel{
                 self?.screenShot = screenShots
                 completion(.success(()))
             case .failure(let error):
-                print(error.localizedDescription)
                 completion(.failure(error))
             }
         }
@@ -134,12 +101,6 @@ final class DetailViewModel{
 }
 
 extension DetailViewModel: DetailViewModelProtocol{
-    
-   /* func load(id: Int?) {
-        guard let id = id else{return}
-        fetchSingleGame(id: id)
-        fetchScreenShots(id: id)
-    }*/
     
     func load(id: Int?) {
         guard let id = id else { return }

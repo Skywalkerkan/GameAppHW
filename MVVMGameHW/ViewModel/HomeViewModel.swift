@@ -88,7 +88,6 @@ extension HomeViewModel: HomeViewModelProtocol{
     func search(searchText: String?){
         fetchSearchGames(searchText: searchText)
     }
-
     
     func game(indexPath: IndexPath) -> Result? {
         games[indexPath.row]
@@ -99,7 +98,6 @@ extension HomeViewModel: HomeViewModelProtocol{
     }
         
     var numberOfItems: Int {
-        print("oyun sayısı \(games.count)")
        return games.count
     }
     

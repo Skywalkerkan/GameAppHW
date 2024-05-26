@@ -55,10 +55,10 @@ class DetailViewController: UIViewController {
         return collectionView
     }()
     
-    let redditCollectionView: UICollectionView = {
+    let redditCollectionView: SelfSizingCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let collectionView = SelfSizingCollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.bounces = false
         collectionView.showsVerticalScrollIndicator = false
@@ -296,66 +296,6 @@ class DetailViewController: UIViewController {
         isStarred.toggle()
       }
     
-    var viewModel: DetailViewModelProtocol!{
-        didSet{
-            viewModel.delegate = self
-        }
-    }
-    
-    var favViewModel: DetailFavViewModelProtocol!{
-        didSet{
-            favViewModel.delegate = self
-        }
-    }
-    
-    var id = 0
-    var englishAllText: String = ""
-    var isShowingFullText = false
-    var timer: Timer?
-    var currentIndexPath: IndexPath = IndexPath(item: 0, section: 0)
-    var selectedIndexPath: IndexPath?
-    var previousIndexPath: IndexPath?
-    var isStarred = false
-    
-    
-    override func viewWillAppear(_ animated: Bool) {
-        favViewModel.isFavorited(id: id)
-
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        viewModel.load(id: id)
-        setupViews()
-        let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
-        descriptonLabel.addGestureRecognizer(labelTapGesture)
-        setupTagCollectionView()
-        setupScreenCollectionView()
-        setupRedditCollectionView()
-    }
-        
-    deinit {
-            timer?.invalidate()
-            player?.pause()
-        }
-    
-    @objc private func labelTapped(){
-        isShowingFullText.toggle()
-        if isShowingFullText {
-            descriptonLabel.text = englishAllText
-        } else {
-            setupDescriptionLabel(text: extractFirstTwoSentences(from: englishAllText))
-        }
-    }
-    
-    func setupDescriptionLabel(text: String) {
-        let fullTextWithContinue = "\(text)...continue"
-        let attributedString = NSMutableAttributedString(string: fullTextWithContinue)
-        let continueRange = NSRange(location: text.count, length: 11)
-        attributedString.addAttribute(.foregroundColor, value: Colors.blueColor, range: continueRange)
-        descriptonLabel.attributedText = attributedString
-    }
-
     private func setupTagCollectionView(){
         tagCollectionView.delegate = self
         tagCollectionView.dataSource = self
@@ -395,6 +335,63 @@ class DetailViewController: UIViewController {
     
     let screenImageViewWrapper = UIView()
     
+    var viewModel: DetailViewModelProtocol!{
+        didSet{
+            viewModel.delegate = self
+        }
+    }
+    
+    var favViewModel: DetailFavViewModelProtocol!{
+        didSet{
+            favViewModel.delegate = self
+        }
+    }
+    
+    var id = 0
+    var englishAllText: String = ""
+    var isShowingFullText = false
+    var timer: Timer?
+    var currentIndexPath: IndexPath = IndexPath(item: 0, section: 0)
+    var selectedIndexPath: IndexPath?
+    var previousIndexPath: IndexPath?
+    var isStarred = false
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        favViewModel.isFavorited(id: id)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewModel.load(id: id)
+        setupViews()
+        let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
+        descriptonLabel.addGestureRecognizer(labelTapGesture)
+        setupTagCollectionView()
+        setupScreenCollectionView()
+        setupRedditCollectionView()
+    }
+        
+    deinit {
+        player?.pause()
+    }
+    
+    @objc private func labelTapped(){
+        isShowingFullText.toggle()
+        if isShowingFullText {
+            descriptonLabel.text = englishAllText
+        } else {
+            setupDescriptionLabel(text: extractFirstTwoSentences(from: englishAllText))
+        }
+    }
+    
+    func setupDescriptionLabel(text: String) {
+        let fullTextWithContinue = "\(text)...continue"
+        let attributedString = NSMutableAttributedString(string: fullTextWithContinue)
+        let continueRange = NSRange(location: text.count, length: 11)
+        attributedString.addAttribute(.foregroundColor, value: Colors.blueColor, range: continueRange)
+        descriptonLabel.attributedText = attributedString
+    }
     private func setupViews(){
         view.backgroundColor = Colors.secondBackgroundColor
 
@@ -442,8 +439,8 @@ class DetailViewController: UIViewController {
             nameLabel.topAnchor.constraint(equalTo: nameWrapper.topAnchor),
             nameLabel.bottomAnchor.constraint(equalTo: nameWrapper.bottomAnchor)
         ])
-
         scrollStackViewContainer.addArrangedSubview(nameWrapper)
+        
         scrollStackViewContainer.setCustomSpacing(8, after: nameWrapper)
 
         scrollStackViewContainer.addArrangedSubview(infoView)
@@ -668,6 +665,7 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
             }
             
             return cell
+            
         case redditCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RedditCell.identifier, for: indexPath) as! RedditCell
             cell.configure(redditDetail: viewModel.redditPosts?[indexPath.row])
@@ -725,7 +723,6 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
         default:
             break
         }
-
     }
 
     func deselectCell(at indexPath: IndexPath?) {
@@ -766,11 +763,10 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
     
 }
 
-
 extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     
     func showError(_ error: String) {
-        hideLodingView()
+       // hideLodingView()
         let alertController = UIAlertController(title: "Alert", message: error, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Try Again", style: .cancel) { _ in
             self.viewModel.load(id: self.id)
@@ -813,8 +809,43 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
     
 }
 
+class SelfSizingCollectionView: UICollectionView {
+    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        super.init(frame: frame, collectionViewLayout: layout)
+        commonInit()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        commonInit()
+    }
+
+    private func commonInit() {
+        isScrollEnabled = false
+    }
+
+    override var contentSize: CGSize {
+        didSet {
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    override func reloadData() {
+        super.reloadData()
+        self.invalidateIntrinsicContentSize()
+    }
+
+    override var intrinsicContentSize: CGSize {
+        return contentSize
+    }
+}
+
 
 extension DetailViewController: DetailFavViewModelDelegate{
+    func isSaved() {
+        print(favViewModel.isStarred)
+    }
+    
     func isStarredFunc() {
         print("İs Starred, \(favViewModel.isStarred)")
         isStarred = favViewModel.isStarred
@@ -825,25 +856,16 @@ extension DetailViewController: DetailFavViewModelDelegate{
         }
     }
     
-    func deleteGame() {
-        print("sildi")
-        print(favViewModel.isStarred)
+    func showDetailFavError(error: Error) {
+        hideLodingView()
+        let alertController = UIAlertController(title: "Alert", message: error.localizedDescription, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Try Again", style: .cancel) { _ in
+            self.viewModel.load(id: self.id)
+        }
+        alertController.addAction(okAction)
+        present(alertController, animated: true)
     }
-    
-    func saveGame() {
-        print("yükleme")
-        print(favViewModel.isStarred)
 
-    }
-    
-    func isSaved() {
-        print("sildi")
-
-    }
-    func showDetailFavError() {
-        print("sildi")
-
-    }
 }
 
 extension DetailViewController: SFSafariViewControllerDelegate {
