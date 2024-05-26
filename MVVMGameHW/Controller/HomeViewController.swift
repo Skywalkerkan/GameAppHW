@@ -62,6 +62,7 @@ class HomeViewController: UIViewController {
     var isLoading = true
     var shouldShowFooter = false
     var isSearching = false
+    var nextPage: String?
     
     let searchController = UISearchController(searchResultsController: nil)
 
@@ -146,6 +147,7 @@ extension HomeViewController: UIScrollViewDelegate{
                     self.gameCollectionView.performBatchUpdates({
                         self.gameCollectionView.collectionViewLayout.invalidateLayout()
                     })
+                    nextPage = viewModel.nextPage
                     viewModel.load(nextPage: viewModel.nextPage)
                 }
             }
@@ -277,6 +279,20 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
 }
 
 extension HomeViewController: HomeViewModelDelegate, LoadingIndicator{
+    
+    func showError(error: Error){
+        let alertController = UIAlertController(title: "Alert", message: error.localizedDescription, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Try Again", style: .cancel) { _ in
+            self.viewModel.load(nextPage: self.nextPage)
+            print("Ok")
+        }
+        DispatchQueue.main.async {
+            alertController.addAction(okAction)
+            self.present(alertController, animated: true)
+        }
+   
+    }
+    
     func showLoadingView() {
         if viewModel.numberOfItems == 0{
             showLoading()
@@ -313,10 +329,6 @@ extension HomeViewController: UISearchBarDelegate {
                 isSearching = true
                 print("Geçerli metin: \(trimmedText)")
                 viewModel.search(searchText: trimmedText)
-
-                if viewModel.allSearchGames?.count == 0{
-                    
-                }
             }else if searchText == ""{
                 print("Buraya giriyor")
                 isSearching = false

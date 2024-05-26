@@ -11,6 +11,7 @@ protocol HomeViewModelDelegate: AnyObject {
     func showLoadingView()
     func hideLoadingView()
     func reloadData()
+    func showError(error: Error)
 }
 
 protocol HomeViewModelProtocol{
@@ -49,6 +50,7 @@ final class HomeViewModel{
                 }
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
+                self?.delegate?.showError(error: error)
             }
         }
     }
@@ -65,6 +67,7 @@ final class HomeViewModel{
                 }
             case .failure(let error):
                 print(error.localizedDescription)
+                self?.delegate?.showError(error: error)
             }
         }
     }

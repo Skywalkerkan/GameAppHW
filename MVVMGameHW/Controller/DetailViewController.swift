@@ -533,6 +533,11 @@ class DetailViewController: UIViewController {
             }
         }
         
+        if gameDetail.tags?.count == 0{
+            tagsLabel.isHidden = true
+            tagCollectionView.isHidden = true
+        }
+        
         nameLabel.text = gameDetail.name
         
         guard let publishers = gameDetail.publishers else { return }
@@ -801,7 +806,12 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
                 }else if screenShots.results?.count ?? 0 > 0{
                     self.selectedIndexPath = [0,0]
                 }
-                self.redditCollectionView.heightAnchor.constraint(equalToConstant: CGFloat(redditComments.count*86)).isActive = true
+                
+                if redditComments.count == 0{
+                    self.commentLabel.isHidden = true
+                    self.viewMoreButton.isHidden = true
+                }
+                //self.redditCollectionView.heightAnchor.constraint(equalToConstant: CGFloat(redditComments.count*86)).isActive = true
             }
 
         }
@@ -850,9 +860,14 @@ extension DetailViewController: DetailFavViewModelDelegate{
         print("İs Starred, \(favViewModel.isStarred)")
         isStarred = favViewModel.isStarred
         if isStarred{
-            starButton.setBackgroundImage(UIImage(systemName: "star.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(Colors.blueColor), for: .normal)
+            DispatchQueue.main.async {
+                self.starButton.setBackgroundImage(UIImage(systemName: "star.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(Colors.blueColor), for: .normal)
+            }
         }else{
-            starButton.setBackgroundImage(UIImage(systemName: "star")?.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
+            DispatchQueue.main.async {
+                self.starButton.setBackgroundImage(UIImage(systemName: "star")?.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
+            }
+           
         }
     }
     

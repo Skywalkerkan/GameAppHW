@@ -95,7 +95,6 @@ class RedditCell: UICollectionViewCell {
     
     func configure(redditDetail: RedditPost?){
         
-        
         if let redditDetail = redditDetail{
             let nameText = removeUserPrefix(from: redditDetail.username ?? "")
             nameLabel.text = nameText
