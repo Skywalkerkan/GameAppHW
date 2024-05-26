@@ -28,6 +28,7 @@ class FavoriteViewController: UIViewController{
     
     override func viewDidLoad() {
         setupCollectionView()
+        navigationController?.navigationBar.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {

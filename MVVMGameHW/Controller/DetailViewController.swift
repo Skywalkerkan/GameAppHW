@@ -14,6 +14,24 @@ class DetailViewController: UIViewController {
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
     
+    let navigationView: UIView = {
+     let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setBackgroundImage(UIImage(systemName: "arrowshape.backward.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(Colors.blueColor), for: .normal)
+        button.addTarget(self, action: #selector(backClicked), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc private func backClicked(){
+        navigationController?.popViewController(animated: true)
+    }
+    
     let tagCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
@@ -205,23 +223,22 @@ class DetailViewController: UIViewController {
         return imageView
     }()
     
-    lazy var starButton: UIBarButtonItem = {
-        let button = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(starButtonTapped))
+    lazy var starButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setBackgroundImage(UIImage(systemName: "star")?.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
+        button.addTarget(self, action: #selector(starButtonTapped), for: .touchUpInside)
         return button
     }()
     
     @objc func starButtonTapped() {
         
         if isStarred{
-            starButton.image = UIImage(systemName: "star")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(.white)
+            starButton.setBackgroundImage(UIImage(systemName: "star")?.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
             favViewModel.deleteItem(id: id)
         }else{
-            starButton.image = UIImage(systemName: "star.fill")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(Colors.blueColor)
             
+            starButton.setBackgroundImage(UIImage(systemName: "star.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(Colors.blueColor), for: .normal)
             
             if let gameViewModel = viewModel.gameDetails,
                let name = gameViewModel.name,
@@ -241,7 +258,6 @@ class DetailViewController: UIViewController {
                         result += result.isEmpty ? name : ", \(name)"
                     }
                 }
-
 
                let gameModel = GameLocalModel(gameId: id, imageData: imageData, platforms: platformsString, name: name, genres: genresString)
                 favViewModel.saveItem(gameModel: gameModel)
@@ -281,34 +297,28 @@ class DetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.rightBarButtonItem = starButton
         viewModel.load(id: id)
-      //  favViewModel.load()
         setupViews()
         let labelTapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
-      //  labelTapGesture.cancelsTouchesInView = false
         descriptonLabel.addGestureRecognizer(labelTapGesture)
         setupTagCollectionView()
         setupScreenCollectionView()
+        
       //  timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(updateIndexPath), userInfo: nil, repeats: true)
 
     }
     
     @objc func updateIndexPath() {
-         // Önceki seçili hücreyi sıfırlama yeri burası
          if let previousIndexPath = selectedIndexPath,
             let previousCell = screenShotsCollectionView.cellForItem(at: previousIndexPath) as? ScreenCell {
              previousCell.backView.layer.borderColor = UIColor.clear.cgColor
              previousCell.backView.layer.borderWidth = 0
              previousCell.arrowImageView.isHidden = true
          }
-
-         // Yeni indexPath'i hesaplama yeri burası
          let numberOfItems = screenShotsCollectionView.numberOfItems(inSection: 0)
          let nextItem = (currentIndexPath.item + 1) % numberOfItems
          currentIndexPath = IndexPath(item: nextItem, section: 0)
 
-         // Yeni seçili hücreyi güncelleme yeri burası
          if let cell = screenShotsCollectionView.cellForItem(at: currentIndexPath) as? ScreenCell {
              cell.backView.layer.borderColor = UIColor.white.cgColor
              cell.backView.layer.borderWidth = 3
@@ -379,11 +389,29 @@ class DetailViewController: UIViewController {
     private func setupViews(){
         view.backgroundColor = Colors.secondBackgroundColor
         
+        view.addSubview(navigationView)
+        navigationView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        navigationView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        navigationView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        navigationView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        navigationView.addSubview(backButton)
+        backButton.topAnchor.constraint(equalTo: navigationView.topAnchor).isActive = true
+        backButton.leadingAnchor.constraint(equalTo: navigationView.leadingAnchor).isActive = true
+        backButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        backButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+
+        navigationView.addSubview(starButton)
+        starButton.topAnchor.constraint(equalTo: navigationView.topAnchor).isActive = true
+        starButton.trailingAnchor.constraint(equalTo: navigationView.trailingAnchor, constant: -8).isActive = true
+        starButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        starButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        
         view.addSubview(scrollView)
         scrollView.addSubview(scrollStackViewContainer)
         scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: navigationView.bottomAnchor).isActive = true
         scrollView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor).isActive = true
         
         scrollView.addSubview(scrollStackViewContainer)
@@ -532,7 +560,7 @@ class DetailViewController: UIViewController {
             return 5
         }
     
-    var maxCount = 0
+    var maxCount = 3
     
     func setupVideoPlayer(in outerView: UIView, urlString: String?) {
         guard let urlString = urlString,
@@ -556,7 +584,6 @@ class DetailViewController: UIViewController {
         outerView.layer.addSublayer(playerLayer)
         player?.play()
     }
-    
 
 }
 
@@ -565,7 +592,8 @@ extension DetailViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch collectionView{
         case tagCollectionView:
-            return maxCount
+            let itemCount = viewModel.gameDetails?.tags?.count ?? 0
+            return min(itemCount, 3)
         case screenShotsCollectionView:
             return viewModel.mediaItems?.count ?? 0
         default:
@@ -715,7 +743,6 @@ extension DetailViewController: DetailViewModelDelegate, LoadingIndicator{
            let trailer = viewModel.trailers{
             DispatchQueue.main.async {
                 self.configure(gameDetail: gameDetails, screenShots: screenShots)
-                self.maxCount = self.isExceedingScreenWidth() ?? 6
                 self.tagCollectionView.reloadData()
                 self.screenShotsCollectionView.reloadData()
             }
@@ -731,13 +758,9 @@ extension DetailViewController: DetailFavViewModelDelegate{
         print("İs Starred, \(favViewModel.isStarred)")
         isStarred = favViewModel.isStarred
         if isStarred{
-            starButton.image = UIImage(systemName: "star.fill")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(Colors.blueColor)
+            starButton.setBackgroundImage(UIImage(systemName: "star.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(Colors.blueColor), for: .normal)
         }else{
-            starButton.image = UIImage(systemName: "star")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(.white)
+            starButton.setBackgroundImage(UIImage(systemName: "star")?.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
         }
     }
     

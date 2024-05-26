@@ -20,6 +20,7 @@ protocol HomeViewModelProtocol{
     func search(searchText: String?)
     func game(indexPath: IndexPath) -> Result?
     var allSearchGames: [Result]? { get}
+    var allGames: [Result]? {get}
     var nextPage: String? { get set}
 }
 
@@ -70,6 +71,10 @@ final class HomeViewModel{
 }
 
 extension HomeViewModel: HomeViewModelProtocol{
+   
+    var allGames: [Result]? {
+        games
+    }
     
     var allSearchGames: [Result]? {
         searchGames

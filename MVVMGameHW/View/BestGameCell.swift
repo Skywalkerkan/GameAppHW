@@ -14,13 +14,13 @@ class BestGameCell: UICollectionViewCell {
     
     let gameImageView: UIImageView = {
        let imageView = UIImageView()
+        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        gameImageView.backgroundColor = Colors.secondBackgroundColor
         setupViews()
     }
     
@@ -29,8 +29,8 @@ class BestGameCell: UICollectionViewCell {
     }
     
     private func setupViews(){
-        
-        backgroundColor = Colors.cellColor
+        layer.cornerRadius = 10
+        clipsToBounds = true
         addSubview(gameImageView)
         gameImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         gameImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -39,7 +39,6 @@ class BestGameCell: UICollectionViewCell {
     }
     
     func configure(imageUrlString: String?){
-
         if let urlString = imageUrlString, let imageURL = URL(string: urlString){
             DispatchQueue.main.async {
                 self.gameImageView.sd_setImage(with: imageURL, placeholderImage: nil, options: [.continueInBackground, .highPriority])

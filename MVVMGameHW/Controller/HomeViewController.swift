@@ -41,18 +41,6 @@ class HomeViewController: UIViewController {
         return label
     }()
     
-    
-    let bestGamesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let cw = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cw.backgroundColor = Colors.backgroundColor
-        cw.isPagingEnabled = true
-        cw.showsHorizontalScrollIndicator = false
-        cw.translatesAutoresizingMaskIntoConstraints = false
-        return cw
-    }()
-    
     let gameCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -67,14 +55,6 @@ class HomeViewController: UIViewController {
             viewModel.delegate = self
         }
     }
-    
-    var pageControl: CustomPageControl = {
-        let view = CustomPageControl()
-        view.currentPage = 0
-        view.numberOfPages = 3
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
 
     var isLoading = true
     var shouldShowFooter = false
@@ -90,13 +70,25 @@ class HomeViewController: UIViewController {
         view.backgroundColor = Colors.backgroundColor
         viewModel.load(nextPage: nil)
         setupFooter()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDidSelectItemNotification(_:)), name: NSNotification.Name(rawValue: "didSelectItemNotification"), object: nil)
     }
+    
+    @objc private func handleDidSelectItemNotification(_ notification: Notification) {
+        if let selectedGameId = notification.object as? Int {
+            let VC = DetailViewController()
+            VC.id = selectedGameId
+            let detailViewModel = DetailViewModel(service: GameService())
+            let favoriteViewModel = DetailFavViewModel(service: LocalService())
+            VC.viewModel = detailViewModel
+            VC.favViewModel = favoriteViewModel
+            self.navigationController?.pushViewController(VC, animated: true)
+        }
+    }
+    
     override func viewDidLayoutSubviews() {
         setupCollectionView()
 
     }
-
-
 
     private func setupCollectionView(){
         
@@ -112,26 +104,12 @@ class HomeViewController: UIViewController {
         searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchBar.widthAnchor.constraint(equalToConstant: view.frame.size.width).isActive = true
         searchBar.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            
-        view.addSubview(bestGamesCollectionView)
-        bestGamesCollectionView.delegate = self
-        bestGamesCollectionView.dataSource = self
-        bestGamesCollectionView.register(BestGameCell.self, forCellWithReuseIdentifier: BestGameCell.identifier)
-        bestGamesCollectionView.topAnchor.constraint(equalTo: navigationView.bottomAnchor).isActive = true
-        bestGamesCollectionView.heightAnchor.constraint(equalToConstant: view.frame.height*0.3).isActive = true
-        bestGamesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        bestGamesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        
-        view.addSubview(pageControl)
-        pageControl.topAnchor.constraint(equalTo: bestGamesCollectionView.bottomAnchor, constant: 0).isActive = true
-        pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -24).isActive = true
-        pageControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
+
         view.addSubview(gameCollectionView)
         gameCollectionView.delegate = self
         gameCollectionView.dataSource = self
         gameCollectionView.register(GameCell.self, forCellWithReuseIdentifier: GameCell.identifier)
-        gameCollectionView.topAnchor.constraint(equalTo: pageControl.bottomAnchor).isActive = true
+        gameCollectionView.topAnchor.constraint(equalTo: navigationView.bottomAnchor).isActive = true
         gameCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         gameCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         gameCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -140,6 +118,7 @@ class HomeViewController: UIViewController {
     
     private func setupFooter(){
         gameCollectionView.register(FooterReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterReusableView.identifier)
+        gameCollectionView.register(HeaderReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderReusableView.identifier)
     }
 }
 
@@ -153,7 +132,7 @@ extension HomeViewController: UIScrollViewDelegate{
             let frameHeight = scrollView.frame.size.height
             
             if offsetY + 100 > contentHeight - frameHeight {
-                if !shouldShowFooter && !isLoading {
+                if !shouldShowFooter && !isLoading && !isSearching {
                     shouldShowFooter = true
                     isLoading = true
                     self.gameCollectionView.performBatchUpdates({
@@ -165,13 +144,6 @@ extension HomeViewController: UIScrollViewDelegate{
         }
     }
     
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        if scrollView == bestGamesCollectionView{
-            let pageWidth = scrollView.frame.width
-            let currentPage = Int(scrollView.contentOffset.x / pageWidth)
-            pageControl.currentPage = currentPage
-        }
-    }
 }
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate{
@@ -184,8 +156,6 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
              }else{
                  return viewModel.numberOfItems
              }
-         case bestGamesCollectionView:
-             return viewModel.numberOfItems == 0 ? 0 : 3
          default:
              return 0
          }
@@ -207,30 +177,41 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
             }
  
             return cell
-        case bestGamesCollectionView:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BestGameCell.identifier, for: indexPath) as! BestGameCell
-            if let urlString = viewModel.game(indexPath: indexPath)?.backgroundImage {
-                cell.configure(imageUrlString: urlString)
-            }
-            return cell
         default:
             return UICollectionViewCell()
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let game = viewModel.game(indexPath: indexPath){
-            let VC = DetailViewController()
-            
-            if let id = game.id{
-                VC.id = id
-                let detailViewModel = DetailViewModel(service: GameService())
-                let favoriteViewModel = DetailFavViewModel(service: LocalService())
-                VC.viewModel = detailViewModel
-                VC.favViewModel = favoriteViewModel
+        print("issearching \(isSearching)")
+        if isSearching{
+            if let game = viewModel.allSearchGames?[indexPath.row]{
+                let VC = DetailViewController()
+                
+                if let id = game.id{
+                    VC.id = id
+                    let detailViewModel = DetailViewModel(service: GameService())
+                    let favoriteViewModel = DetailFavViewModel(service: LocalService())
+                    VC.viewModel = detailViewModel
+                    VC.favViewModel = favoriteViewModel
+                }
+                navigationController?.pushViewController(VC, animated: true)
             }
-            navigationController?.pushViewController(VC, animated: true)
+        }else{
+            if let game = viewModel.game(indexPath: indexPath){
+                let VC = DetailViewController()
+                
+                if let id = game.id{
+                    VC.id = id
+                    let detailViewModel = DetailViewModel(service: GameService())
+                    let favoriteViewModel = DetailFavViewModel(service: LocalService())
+                    VC.viewModel = detailViewModel
+                    VC.favViewModel = favoriteViewModel
+                }
+                navigationController?.pushViewController(VC, animated: true)
+            }
         }
+       
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -238,8 +219,6 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
         switch collectionView{
         case gameCollectionView:
             return CGSize(width: view.frame.size.width - 16, height: 80)
-        case bestGamesCollectionView:
-            return CGSize(width: view.frame.width-16, height: view.frame.height*0.3)
         default:
             return CGSize()
         }
@@ -247,15 +226,24 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
     
     //Footer
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        if collectionView == gameCollectionView && kind == UICollectionView.elementKindSectionFooter {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: FooterReusableView.identifier, for: indexPath) as! FooterReusableView
+
+        if kind == UICollectionView.elementKindSectionFooter{
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterReusableView.identifier, for: indexPath)
+            return footer
+        }else{
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderReusableView.identifier, for: indexPath) as! HeaderReusableView
+            header.configure(gameResult: viewModel.allGames ?? [])
             return header
-        } else {
-            return UICollectionReusableView()
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if isSearching {
+             return .zero
+         } else {
+             return CGSize(width: view.frame.width-16, height: view.frame.height*0.3)
+         }
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
 
@@ -267,7 +255,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        16
+        8
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -282,8 +270,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
 
 extension HomeViewController: HomeViewModelDelegate, LoadingIndicator{
     func showLoadingView() {
-        if viewModel.numberOfItems == 0 || viewModel.allSearchGames?.count == 0{
-            //İlk başladığında Yap
+        if viewModel.numberOfItems == 0{
             showLoading()
         }
     }
@@ -295,7 +282,6 @@ extension HomeViewController: HomeViewModelDelegate, LoadingIndicator{
     func reloadData() {
         DispatchQueue.main.async {
             self.gameCollectionView.reloadData()
-            self.bestGamesCollectionView.reloadData()
         }
 
         isLoading = false
@@ -324,7 +310,6 @@ extension HomeViewController: UISearchBarDelegate {
                 isSearching = false
                 DispatchQueue.main.async {
                     self.gameCollectionView.reloadData()
-                    self.bestGamesCollectionView.reloadData()
                 }
             }
         }

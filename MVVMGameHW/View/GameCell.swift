@@ -63,6 +63,7 @@ class GameCell: UICollectionViewCell {
         addSubview(nameLabel)
         nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
         nameLabel.leadingAnchor.constraint(equalTo: gameImageView.trailingAnchor, constant: 8).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4).isActive = true
         
         addSubview(genresLabel)
         genresLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8).isActive = true
